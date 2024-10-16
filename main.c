@@ -119,6 +119,7 @@ void adicionar_inicio_lista(Lista *lista, float valor){
             lista -> tail = newnode; 
         }
         else{
+            lista->head->prev = newnode;
             newnode -> proximo = lista -> head; 
             lista -> head = newnode;
         }
@@ -151,9 +152,11 @@ void adicionar_final_lista(Lista *lista, float valor){
         lista -> tail = newnode;
     }
     else{
+        lista->tail->next = newnode;
         newnode -> anterior = lista -> tail;
         lista -> tail = newnode;
     }
+    lista->tamanho++;
 }
 
 void deletar_lista(Lista *lista){
