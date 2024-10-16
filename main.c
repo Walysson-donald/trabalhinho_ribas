@@ -69,16 +69,17 @@ int main(void) {
     //talvez da pra deixar em funcao isso aqui em baixo
     // artigo = fopen("dados/textos/texto_1.txt" ,"r");
     printf("a");
-    // essa bosta nao funciona, se esse while ta nao comentado o codigo nem roda0
+    
+    
+    // essa bosta nao funciona
     // objetivo: programa reconhecer quantos arquivos existem no /dados/textos
-    // artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
-    while( NULL != (artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r")) ){
-        printf("a");
-        i++;
-        // fscanf(artigo, "%s", str);
-        sprintf(numero, "%d", i);
-        fclose(artigo);
-    }
+    // while( NULL != (artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r")) ){
+    //     printf("a");
+    //     i++;
+    //     // fscanf(artigo, "%s", str);
+    //     sprintf(numero, "%d", i);
+    //     fclose(artigo);
+    // }
     
     // char str[80] = "dados/textos/texto_";
     //     char str1[500];
