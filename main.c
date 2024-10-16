@@ -41,14 +41,14 @@ Node *criar_node(Node *antes, float valor, Node *proximo);
 //    se indicde == 1, implica que valor deve ir entre lista->head e o proximo.
 void adicionar_meio_lista(Lista *lista, float valor, int indice);
 
-// void adicionar_inicio_lista(Lista *lista, float valor);    //vou deixar pra vc add rafa
+void adicionar_inicio_lista(Lista *lista, float valor);    //vou deixar pra vc add rafa
 
-// void adicionar_final_lista(Lista *lista, float valor);     //vou deixar pra vc add rafa
+void adicionar_final_lista(Lista *lista, float valor);     //vou deixar pra vc add rafa
 
-// void lps_calculo(...)    //add ai rafa
+void lps_calculo(int lps[],char *P,int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
-// void kmp_calculo(...)    //add ai rafa
+void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
@@ -112,6 +112,19 @@ Node *criar_node(Node *antes, float valor, Node *proximo){
     return newnode;
 }
 
+void adicionar_inicio_lista(Lista *lista, float valor){
+    Node *newnode = criar_node(NULL,valor,NULL);
+        if (lista -> head == NULL){
+            lista -> head = newnode;
+            lista -> tail = newnode; 
+        }
+        else{
+            newnode -> proximo = lista -> head; 
+            lista -> head = newnode;
+        }
+    lista -> tamanho++;
+}
+
 void adicionar_meio_lista(Lista *lista, float valor, int indice){
     if(indice >= lista->tamanho){
         // adicionar_inicio_lista(lista, valor);
@@ -131,6 +144,17 @@ void adicionar_meio_lista(Lista *lista, float valor, int indice){
     lista->tamanho++;
     //nao precisa lidar com tail e head
 }
+void adicionar_final_lista(Lista *lista, float valor){
+    Node *newnode = criar_node(NULL,valor,NULL);
+    if (lista -> tail == NULL){
+        lista -> head = newnode;
+        lista -> tail = newnode;
+    }
+    else{
+        newnode -> anterior = lista -> tail;
+        lista -> tail = newnode;
+    }
+}
 
 void deletar_lista(Lista *lista){
     Node *delete_node = lista->head;
@@ -141,3 +165,52 @@ void deletar_lista(Lista *lista){
     }
     free(lista);
 }
+
+void lps_calculo(int lps[],char *P,int M){
+    //int M = strlen(P);
+    int i=0,len=0;
+    while(i<M){
+        if (P[i] == P[len]){
+            len++;
+            lps[i] = len;
+            i++;
+        }
+        else{
+            if (len > 0){
+                len = lps[len+1];
+            }
+            else{
+                lps[i] = 0;
+                i++;
+            }                
+        }         
+    }    
+}
+
+void *kmp_calculo(int lps[],char *P,char *T,int M){
+    int N = strlen(T);
+    int i=0,j=0,k=0;
+    int result[100];
+
+    while((N-i) >= (M-j)){
+        if(P[M] == T[i]){~
+            i++;
+            j++;
+        }
+        if(j == M){
+            result[k] = i-j;
+            k++;
+            j = lps[j-1];
+        }
+        else if ((P[M] != T[i]) && (i < N)){
+            if(j != 0){
+                j = lps[j-1];
+            }
+            else{
+                i++;
+            }
+        }
+    }
+
+}
+
