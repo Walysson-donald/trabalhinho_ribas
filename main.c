@@ -55,7 +55,7 @@ void deletar_lista(Lista *lista);
 
 // float TFIDF_calculo(); //add ai rafa
 
-// float similaridade(float *A, float *B, int size);
+// float similaridade(float *A, float *B, int size); //add ai rafa
 
 
 int main(void) {
