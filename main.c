@@ -23,7 +23,7 @@
 typedef struct temp_name_node{
     float valor;
     struct temp_name_node *proximo;
-    struct temp_name_node *antes;
+    struct temp_name_node *anterior;
 }Node;
 
 typedef struct{
@@ -34,10 +34,10 @@ typedef struct{
 
 Lista *criar_lista();
 
-//observ que ao chamar essa fc, deve ser passado quem é o antes e o proximo do node a ser add
-Node *criar_node(Node *antes, float valor, Node *proximo); 
+//observ que ao chamar essa fc, deve ser passado quem é o anterior e o proximo do node a ser add
+Node *criar_node(Node *anterior, float valor, Node *proximo); 
 
-//    note que se indice == 0, implica que valor deve vir antes do lista->head,
+//    note que se indice == 0, implica que valor deve vir anterior do lista->head,
 //    se indicde == 1, implica que valor deve ir entre lista->head e o proximo.
 void adicionar_meio_lista(Lista *lista, float valor, int indice);
 
@@ -104,9 +104,9 @@ Lista *criar_lista(){
     return lista;
 }
 
-Node *criar_node(Node *antes, float valor, Node *proximo){
+Node *criar_node(Node *anterior, float valor, Node *proximo){
     Node *newnode = malloc(sizeof(Node));
-    newnode->antes = antes;
+    newnode->anterior = anterior;
     newnode->proximo = proximo;
     newnode->valor = valor;
     return newnode;
@@ -136,11 +136,11 @@ void adicionar_meio_lista(Lista *lista, float valor, int indice){
         return;
     }
     Node *auxiliar = lista->head;
-    for(int i = 0; i < indice-1; i++){      //chegamos até o node antes     
+    for(int i = 0; i < indice-1; i++){      //chegamos até o node anterior     
         auxiliar = auxiliar->proximo;       //que o auxiliar vai estar 
     }
     Node *novonode = criar_node(auxiliar, valor, auxiliar->proximo);
-    auxiliar->proximo->antes = novonode;
+    auxiliar->proximo->anterior = novonode;
     auxiliar->proximo = novonode; 
     lista->tamanho++;
     //nao precisa lidar com tail e head
