@@ -53,40 +53,42 @@ void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
 
-// void 
+// float TFIDF_calculo(); //add ai rafa
+
+// float similaridade(float *A, float *B, int size);
 
 
 int main(void) {
     
     char caminho_texto[30], numero[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 20000];
-    char str[100];
-    int i = 1;
-    FILE *artigo;
+    int quantidade_textos = 1;
+    FILE *artigo = NULL;
     
-    strcpy(caminho_texto, "dados/textos/texto_");
     // variaveis deve ser declaradas em cima dessa linha (até a main) e apenas por aqui.
 
+
+
     //talvez da pra deixar em funcao isso aqui em baixo
-    // artigo = fopen("dados/textos/texto_1.txt" ,"r");
-    printf("a");
     
-    
-    // essa bosta nao funciona
-    // objetivo: programa reconhecer quantos arquivos existem no /dados/textos
-    while( NULL != (artigo = fopen(strcat(strcat(caminho_texto, numero), ".txt"), "r")) ){
-        printf("a");
-        i++;
-        // fscanf(artigo, "%s", str);
-        sprintf(numero, "%d", i);
-        fclose(artigo);
-    }
-    
-    // char str[80] = "dados/textos/texto_";
-    //     char str1[500];
-    //    FILE* arq = fopen(strcat(strcat(str, "1"), ".txt"), "r");
-    //     fscanf(arq, "%s", str1);
-    //     printf("%s",str1);
-    //    return(0);
+    //agora funciona, opera dinamicamente para todo txt do formato "dados/textos/texto_i.txt", em que i é um numero nao tao grande
+    strcpy(caminho_texto, "dados/textos/texto_");
+    artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
+    do{
+        /*
+        operacoes com o texto, exemplo: captura de texto, formatação, tf-idf, vetorização, armazenamento, podem ser realizadas por aqui
+        */
+
+
+        // aqui encerra as operações que deve ser feita com o artigo
+        quantidade_textos++;
+        sprintf(numero, "%d", quantidade_textos);
+        if(artigo != NULL)
+            fclose(artigo);
+        strcat(strcat(strcpy(caminho_texto, "dados/textos/texto_"), numero), ".txt");
+        artigo = fopen(caminho_texto, "r");
+    }while( NULL != artigo );
+    free(artigo);
+    quantidade_textos--;
     
 
     return 0;
@@ -216,4 +218,3 @@ void kmp_calculo(int lps[],char *P,char *T,int M){
     }
 
 }
-
