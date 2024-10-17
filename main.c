@@ -73,13 +73,13 @@ int main(void) {
     
     // essa bosta nao funciona
     // objetivo: programa reconhecer quantos arquivos existem no /dados/textos
-    // while( NULL != (artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r")) ){
-    //     printf("a");
-    //     i++;
-    //     // fscanf(artigo, "%s", str);
-    //     sprintf(numero, "%d", i);
-    //     fclose(artigo);
-    // }
+    while( NULL != (artigo = fopen(strcat(strcat(caminho_texto, numero), ".txt"), "r")) ){
+        printf("a");
+        i++;
+        // fscanf(artigo, "%s", str);
+        sprintf(numero, "%d", i);
+        fclose(artigo);
+    }
     
     // char str[80] = "dados/textos/texto_";
     //     char str1[500];
