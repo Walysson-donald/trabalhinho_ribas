@@ -119,7 +119,7 @@ void adicionar_inicio_lista(Lista *lista, float valor){
             lista -> tail = newnode; 
         }
         else{
-            lista->head->prev = newnode;
+            lista->head->anterior = newnode;
             newnode -> proximo = lista -> head; 
             lista -> head = newnode;
         }
@@ -128,11 +128,11 @@ void adicionar_inicio_lista(Lista *lista, float valor){
 
 void adicionar_meio_lista(Lista *lista, float valor, int indice){
     if(indice >= lista->tamanho){
-        // adicionar_inicio_lista(lista, valor);
+        adicionar_inicio_lista(lista, valor);
         return;
     }
     if(indice <= 0){
-        // adicionar_final_lista(lista, valor);
+        adicionar_final_lista(lista, valor);
         return;
     }
     Node *auxiliar = lista->head;
@@ -152,7 +152,7 @@ void adicionar_final_lista(Lista *lista, float valor){
         lista -> tail = newnode;
     }
     else{
-        lista->tail->next = newnode;
+        lista->tail->proximo = newnode;
         newnode -> anterior = lista -> tail;
         lista -> tail = newnode;
     }
@@ -190,7 +190,7 @@ void lps_calculo(int lps[],char *P,int M){
     }    
 }
 
-void *kmp_calculo(int lps[],char *P,char *T,int M){
+void kmp_calculo(int lps[],char *P,char *T,int M){
     int N = strlen(T);
     int i=0,j=0,k=0;
     int result[100];
