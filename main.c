@@ -53,6 +53,8 @@ void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
 
+FILE *buscar_artigo(int numero);
+
 // float TFIDF_calculo(); //add ai rafa
 
 // float similaridade(float *A, float *B, int size); //add ai rafa
@@ -70,25 +72,26 @@ int main(void) {
 
     //talvez da pra deixar em funcao isso aqui em baixo
     
-    //agora funciona, opera dinamicamente para todo txt do formato "dados/textos/texto_i.txt", em que i é um numero nao tao grande
-    strcpy(caminho_texto, "dados/textos/texto_");
-    artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
-    do{
-        /*
-        operacoes com o texto, exemplo: captura de texto, formatação, tf-idf, vetorização, armazenamento, podem ser realizadas por aqui
-        */
+    // agora funciona, opera dinamicamente para todo txt do formato "dados/textos/texto_i.txt", em que i é um numero nao tao grande
+    // precisa modularizar: 
+    // strcpy(caminho_texto, "dados/textos/texto_");
+    // artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
+    // do{
+    //     /*
+    //     operacoes com o texto, exemplo: captura de texto, formatação, tf-idf, vetorização, armazenamento, podem ser realizadas por aqui
+    //     */
 
 
-        // aqui encerra as operações que deve ser feita com o artigo
-        quantidade_textos++;
-        sprintf(numero, "%d", quantidade_textos);
-        if(artigo != NULL)
-            fclose(artigo);
-        strcat(strcat(strcpy(caminho_texto, "dados/textos/texto_"), numero), ".txt");
-        artigo = fopen(caminho_texto, "r");
-    }while( NULL != artigo );
-    free(artigo);
-    quantidade_textos--;
+    //     // aqui encerra as operações que deve ser feita com o artigo
+    //     quantidade_textos++;
+    //     sprintf(numero, "%d", quantidade_textos);
+    //     if(artigo != NULL)
+    //         fclose(artigo);
+    //     strcat(strcat(strcpy(caminho_texto, "dados/textos/texto_"), numero), ".txt");
+    //     artigo = fopen(caminho_texto, "r");
+    // }while( NULL != artigo );
+    // free(artigo);
+    // quantidade_textos--;
     
 
     return 0;
