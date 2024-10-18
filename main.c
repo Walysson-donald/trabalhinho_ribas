@@ -53,7 +53,11 @@ void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
 
-FILE *buscar_artigo(int numero);
+// fc que retorna um FILE* com o texto i que queremos
+FILE *ler_artigo(int numero);
+
+// retorna quantidade de artigo, evite chamar mais que o necessario, funcao ineficiente
+int quantidade_artigo_calculo();
 
 // float TFIDF_calculo(); //add ai rafa
 
@@ -63,17 +67,12 @@ FILE *buscar_artigo(int numero);
 int main(void) {
     
     char caminho_texto[30], numero[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 20000];
-    int quantidade_textos = 1;
-    FILE *artigo = NULL;
-    
+    int quantidade_textos = quantidade_artigo_calculo();
     // variaveis deve ser declaradas em cima dessa linha (até a main) e apenas por aqui.
 
-
-
-    //talvez da pra deixar em funcao isso aqui em baixo
     
     // agora funciona, opera dinamicamente para todo txt do formato "dados/textos/texto_i.txt", em que i é um numero nao tao grande
-    // precisa modularizar: 
+    // foi modularizado caso precise dessas linhas, esta ai:
     // strcpy(caminho_texto, "dados/textos/texto_");
     // artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
     // do{
@@ -93,13 +92,8 @@ int main(void) {
     // free(artigo);
     // quantidade_textos--;
     
-
     return 0;
 }
-
-
-
-
 
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
@@ -191,8 +185,8 @@ void lps_calculo(int lps[],char *P,int M){
                 lps[i] = 0;
                 i++;
             }                
-        }         
-    }    
+        }        
+    }
 }
 
 void kmp_calculo(int lps[],char *P,char *T,int M){
@@ -201,7 +195,7 @@ void kmp_calculo(int lps[],char *P,char *T,int M){
     int result[100];
 
     while((N-i) >= (M-j)){
-        if(P[M] == T[i]){~
+        if(P[M] == T[i]){
             i++;
             j++;
         }
@@ -221,3 +215,30 @@ void kmp_calculo(int lps[],char *P,char *T,int M){
     }
 
 }
+
+int quantidade_artigo_calculo(){
+    FILE *arq;
+    int i = 1, continuar = 0;
+    do{
+        arq = ler_artigo(i);
+        if(arq != NULL){
+            fclose(arq);
+            i++;
+            continuar = 1;
+        }else{
+            continuar = 0;
+        }
+        free(arq);
+    }while(continuar);
+    return i - 2; // -1 pq starta em 1, outro -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
+}
+
+FILE *ler_artigo(int numero){
+    FILE *arq = malloc(sizeof(FILE*));
+    char caminho_artigo[100] = "dados/textos/texto_", numero_str[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
+    sprintf(numero_str, "%d", numero);
+    strcat(strcat(caminho_artigo, numero_str), ".txt");
+    arq = fopen(caminho_artigo, "r");
+    return arq;
+}
+
