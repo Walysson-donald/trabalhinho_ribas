@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <locale.h>
 
 #define MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO 3
 #define MAXIMO_TAMANHO_PALAVRA 100
@@ -50,10 +51,12 @@ void adicionar_final_lista(Lista *lista, char *palavra);     //vou deixar pra vc
 void lps_calculo(int lps[], char *P, int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
-void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
+int kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
+
+int deletar_final_lista(Lista *lista);
 
 // fc que retorna um FILE* com o texto i que queremos
 FILE *abrir_artigo(int numero);
@@ -68,12 +71,35 @@ int quantidade_artigo_calculo();
 // passa um File* do artigo e retorna uma Lista * contendo todas as palavras do artigo
 Lista *ler_artigo(FILE *artigo);
 
+
+
+
+
 int main(void) {
-    FILE *art = abrir_artigo(1);
-    Lista *lista = ler_artigo(art);
-    deletar_lista(lista);
+
+    setlocale(LC_ALL, "Portuguese");
+
+    int quantidade_artigo = quantidade_artigo_calculo();
+    //  printf("%d", quantidade_artigo);
+    //  testes:
+    FILE *art;
+    Lista *lista;
+    for(int i = 1; i <= 1; i++){
+        art = abrir_artigo(i);
+        lista = criar_lista();
+        lista = ler_artigo(art);
+        fclose(art);
+        free(art);
+        deletar_lista(lista);
+    }
+    //  final testes
     return 0;
+
 }
+
+
+
+
 
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
@@ -126,6 +152,7 @@ void adicionar_meio_lista(Lista *lista, char *palavra, int indice){
     lista->qnt_palavras++;
     //nao precisa lidar com tail e head
 }
+
 void adicionar_final_lista(Lista *lista, char *palavra){
     Node *newnode = criar_node(NULL,palavra,NULL);
     if (lista -> tail == NULL){
@@ -149,6 +176,23 @@ void deletar_lista(Lista *lista){
         delete_node = auxiliar->proximo;
     }
     free(lista);
+}   
+
+int deletar_final_lista(Lista *lista){
+
+    if(lista->qnt_palavras == 0) 
+        return 0;
+
+    if(lista->qnt_palavras == 1)
+        lista->head = NULL;
+    
+    Node *delete_node = lista->tail;
+    free(delete_node->palavra);
+    lista->tail->anterior->proximo = NULL;
+    lista->tail = lista->tail->anterior;
+    free(delete_node);
+    lista->qnt_palavras--;
+    return 1;
 }
 
 void lps_calculo(int lps[],char *P,int M){
@@ -172,10 +216,10 @@ void lps_calculo(int lps[],char *P,int M){
     }
 }
 
-void kmp_calculo(int lps[],char *P,char *T,int M){
+int kmp_calculo(int lps[],char *P,char *T,int M){ //alterar
     int N = strlen(T);
-    int i=0,j=0,k=0;
-    int result[100];
+    int i=0,j=0;
+    int quantidade_palavras_iguais = 0;
 
     while((N-i) >= (M-j)){
         if(P[M] == T[i]){
@@ -183,8 +227,7 @@ void kmp_calculo(int lps[],char *P,char *T,int M){
             j++;
         }
         if(j == M){
-            result[k] = i-j;
-            k++;
+            quantidade_palavras_iguais++;
             j = lps[j-1];
         }
         else if ((P[M] != T[i]) && (i < N)){
@@ -196,7 +239,7 @@ void kmp_calculo(int lps[],char *P,char *T,int M){
             }
         }
     }
-
+    return quantidade_palavras_iguais;
 }
 
 int quantidade_artigo_calculo(){
@@ -213,14 +256,14 @@ int quantidade_artigo_calculo(){
         }
         free(arq);
     }while(continuar);
-    return i - 2; // -1 pq starta em 1, outro -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
+    return i - 1; // -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
 }
 
 FILE *abrir_artigo(int numero){
-    FILE *arq = malloc(sizeof(FILE*));
-    char caminho_artigo[100] = "dados/textos/texto_", numero_str[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
-    sprintf(numero_str, "%d", numero);
-    strcat(strcat(caminho_artigo, numero_str), ".txt");
+    FILE *arq = malloc(sizeof(FILE));
+    char caminho_artigo[100] = "dados/textos/texto_", numero_string[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
+    sprintf(numero_string, "%d", numero);
+    strcat(strcat(caminho_artigo, numero_string), ".txt");
     arq = fopen(caminho_artigo, "r");
     return arq;
 }
@@ -228,11 +271,18 @@ FILE *abrir_artigo(int numero){
 Lista *ler_artigo(FILE *artigo){
     Lista *lista = malloc(sizeof(lista));
     char palavra[MAXIMO_TAMANHO_PALAVRA + 1];
+
+    int anterior_ftell = -1;
+    int atual_ftell = -1;
+
     do{
+        anterior_ftell = atual_ftell;
         fscanf(artigo," %s", palavra);
-        if(*palavra != EOF)
-            adicionar_inicio_lista(lista, palavra);
-        printf(" %s ",palavra);
-    }while(*palavra != EOF);
+        // fgets(palavra, sizeof(palavra), artigo); 
+        adicionar_inicio_lista(lista, palavra);
+        // printf(" %s ",palavra); // caso precise verificar oq está na lista lida basta descomentar essa linha
+        atual_ftell = ftell(artigo);
+    }while(atual_ftell != anterior_ftell);
+    deletar_final_lista(lista);
     return lista;
 }
