@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #define MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO 3
+#define MAXIMO_TAMANHO_PALAVRA 100
 
 typedef struct temp_name_node{
     char *palavra;
@@ -55,7 +56,7 @@ void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 void deletar_lista(Lista *lista);
 
 // fc que retorna um FILE* com o texto i que queremos
-FILE *ler_artigo(int numero);
+FILE *abrir_artigo(int numero);
 
 // retorna quantidade de artigo, evite chamar mais que o necessario, funcao ineficiente
 int quantidade_artigo_calculo();
@@ -64,11 +65,12 @@ int quantidade_artigo_calculo();
 
 // float similaridade(float *A, float *B, int size); //add ai rafa
 
+// passa um File* do artigo e retorna uma Lista * contendo todas as palavras do artigo
+Lista *ler_artigo(FILE *artigo);
 
 int main(void) {
-    Lista *lista = criar_lista();
-    adicionar_inicio_lista(lista, "abcde");
-    printf("%s %d",lista->head->palavra ,lista->head->tamanho);
+    FILE *art = abrir_artigo(1);
+    Lista *lista = ler_artigo(art);
     deletar_lista(lista);
     return 0;
 }
@@ -201,7 +203,7 @@ int quantidade_artigo_calculo(){
     FILE *arq;
     int i = 1, continuar = 0;
     do{
-        arq = ler_artigo(i);
+        arq = abrir_artigo(i);
         if(arq != NULL){
             fclose(arq);
             i++;
@@ -214,7 +216,7 @@ int quantidade_artigo_calculo(){
     return i - 2; // -1 pq starta em 1, outro -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
 }
 
-FILE *ler_artigo(int numero){
+FILE *abrir_artigo(int numero){
     FILE *arq = malloc(sizeof(FILE*));
     char caminho_artigo[100] = "dados/textos/texto_", numero_str[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
     sprintf(numero_str, "%d", numero);
@@ -223,3 +225,14 @@ FILE *ler_artigo(int numero){
     return arq;
 }
 
+Lista *ler_artigo(FILE *artigo){
+    Lista *lista = malloc(sizeof(lista));
+    char palavra[MAXIMO_TAMANHO_PALAVRA + 1];
+    do{
+        fscanf(artigo," %s", palavra);
+        if(*palavra != EOF)
+            adicionar_inicio_lista(lista, palavra);
+        printf(" %s ",palavra);
+    }while(*palavra != EOF);
+    return lista;
+}
