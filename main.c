@@ -1,4 +1,4 @@
-/*teste
+/*
     Nome de variavel com duas palvras: nome1_nome2 (da pra mudar caso se queira).
     Sem comentarios extremamente zueiros, uma piada cá ou lá taokei, maioria dos comentarios,      quando tiver, deve ser explicativos.
     Structs typdef deve conter a primeira letra maiuscula.
@@ -8,7 +8,7 @@
         ...
     }
     Codigo deve ser modularizado, conter diversas funcoes que vamos precisar, obrigatoriamente     vamos usar o cabeçalho da função em cima da main, e desenvolver ela por extenso a baixo da     main.
-    Vamos tentar deixar as variaveis em portugues e por extenso, valor (ao inves de val), caso     a palavra for grande (>10 letras, talvez) podemos ver um jeito de abreviar caso precisa.
+    Vamos tentar deixar as variaveis em portugues e por extenso, palavra (ao inves de val), caso     a palavra for grande (>10 letras, talvez) podemos ver um jeito de abreviar caso precisa.
 
     caso queira fazer sugestao pra manter o codigo limpo add embaixo dessa linha:
     
@@ -21,13 +21,14 @@
 #define MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO 3
 
 typedef struct temp_name_node{
-    float valor;
+    char *palavra;
+    int tamanho;
     struct temp_name_node *proximo;
     struct temp_name_node *anterior;
 }Node;
 
 typedef struct{
-    int tamanho;
+    int qnt_palavras;
     Node *head;    //imagino que voce codou usando head tail e node, vou manter esses nomes
     Node *tail; 
 }Lista;
@@ -35,17 +36,17 @@ typedef struct{
 Lista *criar_lista();
 
 //observ que ao chamar essa fc, deve ser passado quem é o anterior e o proximo do node a ser add
-Node *criar_node(Node *anterior, float valor, Node *proximo); 
+Node *criar_node(Node *anterior, char *palavra, Node *proximo); 
 
-//    note que se indice == 0, implica que valor deve vir anterior do lista->head,
-//    se indicde == 1, implica que valor deve ir entre lista->head e o proximo.
-void adicionar_meio_lista(Lista *lista, float valor, int indice);
+//    note que se indice == 0, implica que palavra deve vir anterior do lista->head,
+//    se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
+void adicionar_meio_lista(Lista *lista, char *palavra, int indice);
 
-void adicionar_inicio_lista(Lista *lista, float valor);    //vou deixar pra vc add rafa
+void adicionar_inicio_lista(Lista *lista, char *palavra);    //vou deixar pra vc add rafa
 
-void adicionar_final_lista(Lista *lista, float valor);     //vou deixar pra vc add rafa
+void adicionar_final_lista(Lista *lista, char *palavra);     //vou deixar pra vc add rafa
 
-void lps_calculo(int lps[],char *P,int M);    //add ai rafa
+void lps_calculo(int lps[], char *P, int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
 void kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
@@ -65,33 +66,10 @@ int quantidade_artigo_calculo();
 
 
 int main(void) {
-    
-    char caminho_texto[30], numero[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 20000];
-    int quantidade_textos = quantidade_artigo_calculo();
-    // variaveis deve ser declaradas em cima dessa linha (até a main) e apenas por aqui.
-
-    
-    // agora funciona, opera dinamicamente para todo txt do formato "dados/textos/texto_i.txt", em que i é um numero nao tao grande
-    // foi modularizado caso precise dessas linhas, esta ai:
-    // strcpy(caminho_texto, "dados/textos/texto_");
-    // artigo = fopen(strcat(strcat(caminho_texto, "1"), ".txt"), "r");
-    // do{
-    //     /*
-    //     operacoes com o texto, exemplo: captura de texto, formatação, tf-idf, vetorização, armazenamento, podem ser realizadas por aqui
-    //     */
-
-
-    //     // aqui encerra as operações que deve ser feita com o artigo
-    //     quantidade_textos++;
-    //     sprintf(numero, "%d", quantidade_textos);
-    //     if(artigo != NULL)
-    //         fclose(artigo);
-    //     strcat(strcat(strcpy(caminho_texto, "dados/textos/texto_"), numero), ".txt");
-    //     artigo = fopen(caminho_texto, "r");
-    // }while( NULL != artigo );
-    // free(artigo);
-    // quantidade_textos--;
-    
+    Lista *lista = criar_lista();
+    adicionar_inicio_lista(lista, "abcde");
+    printf("%s %d",lista->head->palavra ,lista->head->tamanho);
+    deletar_lista(lista);
     return 0;
 }
 
@@ -99,20 +77,22 @@ Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
     lista->head = NULL;
     lista->tail = NULL;
-    lista->tamanho = 0;
+    lista->qnt_palavras = 0;
     return lista;
 }
 
-Node *criar_node(Node *anterior, float valor, Node *proximo){
+Node *criar_node(Node *anterior, char *palavra, Node *proximo){
     Node *newnode = malloc(sizeof(Node));
     newnode->anterior = anterior;
     newnode->proximo = proximo;
-    newnode->valor = valor;
+    newnode->tamanho = strlen(palavra);
+    newnode->palavra = malloc(newnode->tamanho + 1);
+    strcpy(newnode->palavra, palavra);
     return newnode;
 }
 
-void adicionar_inicio_lista(Lista *lista, float valor){
-    Node *newnode = criar_node(NULL,valor,NULL);
+void adicionar_inicio_lista(Lista *lista, char *palavra){
+    Node *newnode = criar_node(NULL,palavra,NULL);
         if (lista -> head == NULL){
             lista -> head = newnode;
             lista -> tail = newnode; 
@@ -122,30 +102,30 @@ void adicionar_inicio_lista(Lista *lista, float valor){
             newnode -> proximo = lista -> head; 
             lista -> head = newnode;
         }
-    lista -> tamanho++;
+    lista -> qnt_palavras++;
 }
 
-void adicionar_meio_lista(Lista *lista, float valor, int indice){
-    if(indice >= lista->tamanho){
-        adicionar_inicio_lista(lista, valor);
+void adicionar_meio_lista(Lista *lista, char *palavra, int indice){
+    if(indice >= lista->qnt_palavras){
+        adicionar_inicio_lista(lista, palavra);
         return;
     }
     if(indice <= 0){
-        adicionar_final_lista(lista, valor);
+        adicionar_final_lista(lista, palavra);
         return;
     }
     Node *auxiliar = lista->head;
     for(int i = 0; i < indice-1; i++){      //chegamos até o node anterior     
         auxiliar = auxiliar->proximo;       //que o auxiliar vai estar 
     }
-    Node *novonode = criar_node(auxiliar, valor, auxiliar->proximo);
+    Node *novonode = criar_node(auxiliar, palavra, auxiliar->proximo);
     auxiliar->proximo->anterior = novonode;
     auxiliar->proximo = novonode; 
-    lista->tamanho++;
+    lista->qnt_palavras++;
     //nao precisa lidar com tail e head
 }
-void adicionar_final_lista(Lista *lista, float valor){
-    Node *newnode = criar_node(NULL,valor,NULL);
+void adicionar_final_lista(Lista *lista, char *palavra){
+    Node *newnode = criar_node(NULL,palavra,NULL);
     if (lista -> tail == NULL){
         lista -> head = newnode;
         lista -> tail = newnode;
@@ -155,13 +135,14 @@ void adicionar_final_lista(Lista *lista, float valor){
         newnode -> anterior = lista -> tail;
         lista -> tail = newnode;
     }
-    lista->tamanho++;
+    lista->qnt_palavras++;
 }
 
 void deletar_lista(Lista *lista){
     Node *delete_node = lista->head;
     while(delete_node != NULL){
         Node *auxiliar = delete_node;
+        free(delete_node->palavra);
         free(delete_node);
         delete_node = auxiliar->proximo;
     }
