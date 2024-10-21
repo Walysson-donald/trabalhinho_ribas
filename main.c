@@ -1,4 +1,4 @@
-/*
+ji/*
     Nome de variavel com duas palvras: nome1_nome2 (da pra mudar caso se queira).
     Sem comentarios extremamente zueiros, uma piada cá ou lá taokei, maioria dos comentarios,      quando tiver, deve ser explicativos.
     Structs typdef deve conter a primeira letra maiuscula.
@@ -227,7 +227,7 @@ int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
     int erros = 0;
     int erro_max = 1;
 
-    while ((N - i) >= (M - j)) {
+    while ((N - i+erro_max) >= (M - j)) {
         if (P[j] == T[i]) {
             i++;
             j++;
