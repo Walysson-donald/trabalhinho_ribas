@@ -48,6 +48,8 @@ void adicionar_inicio_lista(Lista *lista, char *palavra);    //vou deixar pra vc
 
 void adicionar_final_lista(Lista *lista, char *palavra);     //vou deixar pra vc add rafa
 
+void printa_lista(Lista *lista);
+
 void lps_calculo(int lps[], char *P, int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
@@ -285,4 +287,12 @@ Lista *ler_artigo(FILE *artigo){
     }while(atual_ftell != anterior_ftell);
     deletar_final_lista(lista);
     return lista;
+}
+
+void printa_lista(Lista *lista){
+    Node *auxnode = lista->head;
+    while(auxnode != NULL){
+        printf("%s", palavra);
+        auxnode = auxnode->proximo;
+    }
 }
