@@ -291,8 +291,10 @@ Lista *ler_artigo(FILE *artigo){
 
 void printa_lista(Lista *lista){
     Node *auxnode = lista->head;
+    int i = 1;
     while(auxnode != NULL){
-        printf("%s", palavra);
+        printf("elemento %d: %s\n", i, palavra);
         auxnode = auxnode->proximo;
+        i++;
     }
 }
