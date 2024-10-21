@@ -199,7 +199,9 @@ int deletar_final_lista(Lista *lista){
 
 void lps_calculo(int lps[],char *P,int M){
     //int M = strlen(P);
-    int i=0,len=0;
+    int i=1,len=0;
+    lps[0] = 0;
+
     while(i<M){
         if (P[i] == P[len]){
             len++;
@@ -218,27 +220,36 @@ void lps_calculo(int lps[],char *P,int M){
     }
 }
 
-int kmp_calculo(int lps[],char *P,char *T,int M){ //alterar
+int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
     int N = strlen(T);
-    int i=0,j=0;
+    int i = 0, j = 0;
     int quantidade_palavras_iguais = 0;
+    int erros = 0;
+    int erro_max = 1;
 
-    while((N-i) >= (M-j)){
-        if(P[M] == T[i]){
+    while ((N - i) >= (M - j)) {
+        if (P[j] == T[i]) {
             i++;
             j++;
-        }
-        if(j == M){
-            quantidade_palavras_iguais++;
-            j = lps[j-1];
-        }
-        else if ((P[M] != T[i]) && (i < N)){
-            if(j != 0){
-                j = lps[j-1];
-            }
-            else{
+        } else {
+            erros++;
+            if (erros > erro_max) {
+                if (j != 0) {
+                    j = lps[j - 1];
+                } else {
+                    i++;
+                }
+                erros = 0; 
+            } else { 
                 i++;
+                j++;
             }
+        }
+
+        if (j == M) {
+            quantidade_palavras_iguais++;
+            j = lps[j - 1];
+            erros = 0; 
         }
     }
     return quantidade_palavras_iguais;
