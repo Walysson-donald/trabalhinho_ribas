@@ -432,3 +432,12 @@ float TFIDF_calculo(float fc_TF,float IDF){
 }
 
 int tamanho_arquivo(FILE *arquivo) {
+
+    fseek(arquivo, 0, SEEK_END);
+    
+    int tamanho = ftell(arquivo);
+    
+    rewind(arquivo);
+    
+    return tamanho;
+}
