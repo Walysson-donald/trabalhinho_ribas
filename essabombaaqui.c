@@ -85,16 +85,35 @@ float IDF(int t,int num_doc);
 
 int tamanho_arquivo(FILE *arquivo);
 
+int verifica_caso_usuario_queira_recalcular_TFIDF();
+
 int main(void) {
-
     setlocale(LC_ALL, "Portuguese");
+    // esse valor deve ficar na main!
+    int quantidade_artigo = quantidade_artigo_calculo();
 
-    FILE *art;
+
+
+
+    // IMPORTANTE:
+    // precisa criar um meio de armazenar o tfidf apos ele ser calculado, e se haver um tfidf apenas leia o arquivo ao inves de calcular tudo denovo.
+    int opcao;
+    if(opcao = verifica_caso_usuario_queira_recalcular_TFIDF()){
+        FILE *TFIDFarq = fopen("TFIDF.bin", "rb");
+
+    } // precisa saber mais um pouco de informação sobre como vai ser o TFIDF, talvez a leitura deve ir para um int**
+    // ideia: na funcao de calcular tfidf verificamos o verifica_caso_usuario_queira_recalcular_TFIDF() e entao decidimos o que deve ser feito
+    
+
+
+
+
+
+    FILE *art;  
     FILE *vocabulario;
     Lista *lista;
-
+    
     vocabulario = fopen("dados/vocabulary.txt", "r");
-    int quantidade_artigo = quantidade_artigo_calculo();
     int tamanho_vocabulario = tamanho_arquivo(vocabulario);
     float matriz_TFIDF[tamanho_vocabulario][quantidade_artigo];
     int i=0,j=0;
@@ -117,7 +136,7 @@ int main(void) {
             lps_calculo(lps,palavra,M);
             int frequencia = kmp_calculo_com_erros(lps,palavra,T -> text,M);
             float tf = fc_TF(frequencia, T -> tamanho); 
-            printf("%f\n",tf);
+            // printf("%f\n",tf);
             // IDF(falta saber o numero de artigos em que a palavra aparece)
             //matriz_TFIDF[i][j] = TFIDF_calculo(tf,idf);
             i++;
@@ -444,4 +463,17 @@ int tamanho_arquivo(FILE *arquivo) {
     int tamanho = ftell(arquivo);
     rewind(arquivo);
     return tamanho;
+}
+
+int verifica_caso_usuario_queira_recalcular_TFIDF(){
+    char escolha;
+    do{
+        printf("Primeira vez executando esse código ou deseja re-calcular TF-IDF? (s/n)\n");
+        scanf(" %c", &escolha);
+        if(escolha != 's' && escolha != 'n')
+            printf("sua escolha deve ser sim (s) ou não (n)!\n");
+    }while(escolha != 's' && escolha != 'n');
+    if(escolha == 's')
+        return 1;
+    return 0;
 }
