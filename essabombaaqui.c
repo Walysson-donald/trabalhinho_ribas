@@ -1,10 +1,10 @@
-/*
+ji/*
     Nome de variavel com duas palvras: nome1_nome2 (da pra mudar caso se queira).
     Sem comentarios extremamente zueiros, uma piada cá ou lá taokei, maioria dos comentarios,      quando tiver, deve ser explicativos.
     Structs typdef deve conter a primeira letra maiuscula.
     Segue estrutura de {} (tanto para for, if ou outra coisa), que vamos usar:
     if (1 == 1){
-        printf("Hello World!");
+        prinTF("Hello World!");
         ...
     }
     Codigo deve ser modularizado, conter diversas funcoes que vamos precisar, obrigatoriamente     vamos usar o cabeçalho da função em cima da main, e desenvolver ela por extenso a baixo da     main.
@@ -41,6 +41,16 @@ typedef struct Texto{
     int tamanho;
 }Texto;
 
+typedef struct Pilha{
+    float itens[100];
+    int topo;
+}Pilha;
+
+typedef struct Palavra{
+    int qnt_artigos_aparece;
+    char conteudo[100];
+}Palavra;
+
 Lista *criar_lista();
 
 //observ que ao chamar essa fc, deve ser passado quem é o anterior e o proximo do node a ser add
@@ -59,7 +69,7 @@ void printa_lista(Lista *lista);
 void lps_calculo(int lps[], char *P, int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
-int kmp_calculo_com_erros(int lps[],char *P,char *T,int M);    //add ai rafa
+int kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
 
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
@@ -81,73 +91,44 @@ Texto *ler_artigo(FILE *artigo);
 
 float fc_TF(int frequencia,int tamanho);
 
-float IDF(int t,int num_doc);
+float fc_IDF(int num_docs_palavra_aparece,int num_doc_total);
 
-int tamanho_arquivo(FILE *arquivo);
+void inicializar_pilha(Pilha *P);
 
-int verifica_caso_usuario_queira_recalcular_TFIDF();
+int isEmpty(Pilha *P);
+
+float pop(Pilha *P);
+
+void push(Pilha *P,float item);
+
+void fc_matriz_TFIDF(Pilha *TF,Pilha *IDF,float matriz_TFIDF[][],int tamanho_vocabulario,int quantidade_artigo);
+
+void calculo_vetor_busca(char vetor_TFIFDF[], char query[],Pilha *TF,Pilha *IDF,float matriz_TFIDF[][],int tamanho_vocabulario,int quantidade_artigo);
+
+
 
 int main(void) {
+
     setlocale(LC_ALL, "Portuguese");
-    // esse valor deve ficar na main!
-    int quantidade_artigo = quantidade_artigo_calculo();
 
-
-
-
-    // IMPORTANTE:
-    // precisa criar um meio de armazenar o tfidf apos ele ser calculado, e se haver um tfidf apenas leia o arquivo ao inves de calcular tudo denovo.
-    int opcao;
-    if(opcao = verifica_caso_usuario_queira_recalcular_TFIDF()){
-        FILE *TFIDFarq = fopen("TFIDF.bin", "rb");
-
-    } // precisa saber mais um pouco de informação sobre como vai ser o TFIDF, talvez a leitura deve ir para um int**
-    // ideia: na funcao de calcular tfidf verificamos o verifica_caso_usuario_queira_recalcular_TFIDF() e entao decidimos o que deve ser feito
-    
-
-
-
-
-
-    FILE *art;  
+    Pilha *TF,*IDF;
     FILE *vocabulario;
-    Lista *lista;
-    
-    vocabulario = fopen("dados/vocabulary.txt", "r");
+    char query[100];
+    char *vetor_TFIFDF;
+    vetor_TFIFDF = malloc(sizeof(char) * 100);
+    int j=0;
+
+    int quantidade_artigo = quantidade_artigo_calculo();
     int tamanho_vocabulario = tamanho_arquivo(vocabulario);
     float matriz_TFIDF[tamanho_vocabulario][quantidade_artigo];
-    int i=0,j=0;
-    //  printf("%d", quantidade_artigo);
-    //  testes:
- 
 
-    for(int i = 1; i <= 1; i++){
-        art = abrir_artigo(i);
-        lista = criar_lista();
-        Texto *T = ler_artigo(art);
-        char palavra[100];
+    fc_matriz_TFIDF(TF,IDF,matriz_TFIDF,tamanho_vocabulario,quantidade_artigo);
 
-        while (fgets(palavra, sizeof(palavra), vocabulario) != NULL) {
-            palavra[strcspn(palavra, "\n")] = 0;
+    fgets(query,sizeof(query),stdin);
+
+    calculo_vetor_busca(vetor_TFIFDF, query, TF, IDF, matriz_TFIDF, tamanho_vocabulario, quantidade_artigo);
+
     
-            int M = strlen(palavra);
-            int lps[M];
-    
-            lps_calculo(lps,palavra,M);
-            int frequencia = kmp_calculo_com_erros(lps,palavra,T -> text,M);
-            float tf = fc_TF(frequencia, T -> tamanho); 
-            // printf("%f\n",tf);
-            // IDF(falta saber o numero de artigos em que a palavra aparece)
-            //matriz_TFIDF[i][j] = TFIDF_calculo(tf,idf);
-            i++;
-        }
-        j++;
-        fclose(art);
-        deletar_lista(lista);
-    }
-
-    fclose(vocabulario);
-    //  final testes
     return 0;
 
 }
@@ -274,10 +255,6 @@ void lps_calculo(int lps[],char *P,int M){
 }
 
 int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
-    // T = Texto
-    // P = Padrao
-    // M = tamanho de T
-    // N = tamanho de P
     int N = strlen(T);
     int i = 0, j = 0;
     int quantidade_palavras_iguais = 0;
@@ -364,17 +341,18 @@ int quantidade_artigo_calculo(){
         }else{
             continuar = 0;
         }
+        free(arq);
     }while(continuar);
     return i - 1; // -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
 }
 
 FILE *abrir_artigo(int numero){
-    FILE *artigo;
+    FILE *arq = malloc(sizeof(FILE));
     char caminho_artigo[100] = "dados/textos/texto_", numero_string[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
-    sprintf(numero_string, "%d", numero);
+    sprinTF(numero_string, "%d", numero);
     strcat(strcat(caminho_artigo, numero_string), ".txt");
-    artigo = fopen(caminho_artigo, "r");
-    return artigo;
+    arq = fopen(caminho_artigo, "r");
+    return arq;
 }
 
 /*
@@ -426,7 +404,7 @@ Texto* ler_artigo(FILE *artigo) {
 
         atual_ftell = ftell(artigo);
     } while (atual_ftell != anterior_ftell);
-    // printf("%s\n",texto->text);  // teste
+
     return texto;
 }
 
@@ -435,7 +413,7 @@ void printa_lista(Lista *lista){
     Node *auxnode = lista->head;
     int i = 1;
     while(auxnode != NULL){
-        printf("elemento %d: %s\n", i, auxnode -> palavra);
+        prinTF("elemento %d: %s\n", i, auxnode -> palavra);
         auxnode = auxnode->proximo;
         i++;
     }
@@ -445,35 +423,151 @@ float fc_TF(int frequencia,int tamanho ){
     return (frequencia/tamanho);
 }
 
-float IDF(int t,int num_doc){
-    return (log(num_doc/t+1));
+float fc_IDF(int num_docs_palavra_aparece,int num_doc_total){
+    return (log(num_doc_total/num_docs_palavra_aparece+1));
 }
 
-float TFIDF_calculo(float fc_TF,float IDF){
-    return (fc_TF*IDF);
+float TFIDF_calculo(float TF,float IDF){
+
+    return (TF*IDF);
 }
 
 int tamanho_arquivo(FILE *arquivo) {
-    if(arquivo == NULL)
-    {
-        printf("erro ao ler o arquivo");
-        return 0;
-    }
+
     fseek(arquivo, 0, SEEK_END);
+    
     int tamanho = ftell(arquivo);
+    
     rewind(arquivo);
+    
     return tamanho;
 }
 
-int verifica_caso_usuario_queira_recalcular_TFIDF(){
-    char escolha;
-    do{
-        printf("Primeira vez executando esse código ou deseja re-calcular TF-IDF? (s/n)\n");
-        scanf(" %c", &escolha);
-        if(escolha != 's' && escolha != 'n')
-            printf("sua escolha deve ser sim (s) ou não (n)!\n");
-    }while(escolha != 's' && escolha != 'n');
-    if(escolha == 's')
-        return 1;
-    return 0;
+void inicializar_pilha(Pilha *P){
+    P -> topo = -1;
+}
+
+int isEmpty(Pilha *P){
+    return (P -> topo == -1);
+}
+
+void push(Pilha *P,float item){
+    P->topo++;
+    P->itens[P->topo] = item;
+}
+
+float pop(Pilha *P){
+
+    if(isEmpty(P)){
+        printf("Pilha vazia");
+        return;
+    }
+    Pilha *aux;
+    inicializar_pilha(aux);
+    while(!isEmpty(P)){
+        push(aux,pop(P));
+    }
+    float inicio_fila = pop(aux);
+
+    while(!isEmpty(aux)){
+        push(P,pop(aux));
+    }
+    return inicio_fila;
+}
+
+void fc_matriz_TFIDF(Pilha *TF,Pilha *IDF,float matriz_TFIDF[][],int tamanho_vocabulario,int quantidade_artigo){
+    
+    FILE *art;
+    Texto *T;
+    Palavra *palavra;
+    
+    FILE *vocabulario = fopen("vocabulary.txt", "r");
+
+    while (fgets(palavra->conteudo, sizeof(palavra->conteudo), vocabulario) != NULL) {
+        palavra->conteudo[strcspn(palavra->conteudo, "\n")] = 0;
+
+        int M = strlen(palavra->conteudo);
+        int lps[M];
+        lps_calculo(lps,palavra->conteudo,M);
+
+        for(int i = 1; i < quantidade_artigo; i++){
+            art = abrir_artigo(i);
+            T = ler_artigo(art);
+            
+            int frequencia = kmp_calculo_com_erros(lps,palavra->conteudo,T -> text,M);
+            float tf = fc_TF(frequencia, T -> tamanho);
+            if (tf>0){
+                palavra -> qnt_artigos_aparece++;
+            }
+
+            push(TF,tf);
+
+            fclose(art);
+    }
+        float idf = fc_IDF(palavra->qnt_artigos_aparece,quantidade_artigo);
+        push(IDF,idf);
+    }
+
+    for(int i=0;i<tamanho_vocabulario;i++){
+        for(int j=0;j<quantidade_artigo;j++){
+            matriz_TFIDF[i][j] = TFIDF_calculo(pop(TF),pop(IDF));
+        }
+    }
+
+    fclose(vocabulario);
+}
+
+void calculo_vetor_busca(char vetor_TFIFDF[], char query[],Pilha *TF,Pilha *IDF,float matriz_TFIDF[][],int tamanho_vocabulario,int quantidade_artigo){
+
+query[strcspn(query, "\n")] = 0;
+
+    FILE *art;
+    Texto *T;
+    Palavra *palavra;
+    int tamanho_vetor;
+    int count=0;
+    
+    palavra -> conteudo = strtok(query, " "); 
+
+    while (palavra != NULL) {
+           
+        int M = strlen(palavra->conteudo);
+        int lps[M];
+        lps_calculo(lps,palavra->conteudo,M);
+
+        for(int i = 1; i < quantidade_artigo; i++){
+            art = abrir_artigo(i);
+            T = ler_artigo(art);
+            
+            int frequencia = kmp_calculo_com_erros(lps,palavra->conteudo,T -> text,M);
+            float tf = fc_TF(frequencia, T -> tamanho);
+            if (tf>0){
+                palavra -> qnt_artigos_aparece++;
+            }
+
+            push(TF,tf);
+
+            fclose(art);
+    }
+        float idf = fc_IDF(palavra->qnt_artigos_aparece,quantidade_artigo);
+        push(IDF,idf);
+
+        count++;
+    palavra = strtok(NULL, " ");
+    }
+    
+    for(int i=0;i<count;i++){
+    vetor_TFIFDF[i] = TFIDF_calculo(pop(TF),pop(IDF));
+    }
+
+    tamanho_vetor = strlen(vetor_TFIFDF);
+    vetor_TFIFDF = realloc(vetor_TFIFDF, sizeof(char) * tamanho_vetor);
+
+}
+
+float similiaridade(float matriz_TFIDF[][],char vetor_TFIFDF[],Pilha *S){
+    int i=0,j=0;
+    
+    
+    
 }
