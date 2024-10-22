@@ -59,7 +59,7 @@ void printa_lista(Lista *lista);
 void lps_calculo(int lps[], char *P, int M);    //add ai rafa
 
 //vamo fazer ele normal e depois tenta modificar o kmp
-int kmp_calculo(int lps[],char *P,char *T,int M);    //add ai rafa
+int kmp_calculo_com_erros(int lps[],char *P,char *T,int M);    //add ai rafa
 
 // acho que remoção nao é tão necessaria, talvez uma função pra deletar uma lista inteira é uma boa
 void deletar_lista(Lista *lista);
@@ -83,7 +83,7 @@ float fc_TF(int frequencia,int tamanho);
 
 float IDF(int t,int num_doc);
 
-
+int tamanho_arquivo(FILE *arquivo);
 
 int main(void) {
 
@@ -254,6 +254,10 @@ void lps_calculo(int lps[],char *P,int M){
 }
 
 int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
+    // T = Texto
+    // P = Padrao
+    // M = tamanho de T
+    // N = tamanho de P
     int N = strlen(T);
     int i = 0, j = 0;
     int quantidade_palavras_iguais = 0;
@@ -340,18 +344,17 @@ int quantidade_artigo_calculo(){
         }else{
             continuar = 0;
         }
-        free(arq);
     }while(continuar);
     return i - 1; // -1 pois ele conta o texto 142 como se fosse um texto legit mas nao 'e
 }
 
 FILE *abrir_artigo(int numero){
-    FILE *arq = malloc(sizeof(FILE));
+    FILE *artigo;
     char caminho_artigo[100] = "dados/textos/texto_", numero_string[MAXIMA_QUANTIDADE_ALGORISMOS_ARTIGO + 2];
     sprintf(numero_string, "%d", numero);
     strcat(strcat(caminho_artigo, numero_string), ".txt");
-    arq = fopen(caminho_artigo, "r");
-    return arq;
+    artigo = fopen(caminho_artigo, "r");
+    return artigo;
 }
 
 /*
@@ -403,7 +406,7 @@ Texto* ler_artigo(FILE *artigo) {
 
         atual_ftell = ftell(artigo);
     } while (atual_ftell != anterior_ftell);
-
+    printf("%s",texto->text);
     return texto;
 }
 
@@ -427,17 +430,13 @@ float IDF(int t,int num_doc){
 }
 
 float TFIDF_calculo(float fc_TF,float IDF){
-
     return (fc_TF*IDF);
 }
 
 int tamanho_arquivo(FILE *arquivo) {
 
     fseek(arquivo, 0, SEEK_END);
-    
     int tamanho = ftell(arquivo);
-    
     rewind(arquivo);
-    
     return tamanho;
 }
