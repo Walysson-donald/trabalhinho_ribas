@@ -1,4 +1,4 @@
-ji/*
+/*
     Nome de variavel com duas palvras: nome1_nome2 (da pra mudar caso se queira).
     Sem comentarios extremamente zueiros, uma piada cá ou lá taokei, maioria dos comentarios,      quando tiver, deve ser explicativos.
     Structs typdef deve conter a primeira letra maiuscula.
