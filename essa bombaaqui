@@ -93,6 +93,7 @@ int main(void) {
     FILE *vocabulario;
     Lista *lista;
 
+    vocabulario = fopen("dados/vocabulary.txt", "r");
     int quantidade_artigo = quantidade_artigo_calculo();
     int tamanho_vocabulario = tamanho_arquivo(vocabulario);
     float matriz_TFIDF[tamanho_vocabulario][quantidade_artigo];
@@ -106,21 +107,21 @@ int main(void) {
         lista = criar_lista();
         Texto *T = ler_artigo(art);
         char palavra[100];
-        vocabulario = fopen("vocabulary.txt", "r");
 
-    while (fgets(palavra, sizeof(palavra), vocabulario) != NULL) {
-        palavra[strcspn(palavra, "\n")] = 0;
-
-        int M = strlen(palavra);
-        int lps[M];
-
-        lps_calculo(lps,palavra,M);
-        int frequencia = kmp_calculo_com_erros(lps,palavra,T -> text,M);
-        float tf = fc_TF(frequencia, T -> tamanho); 
-        // IDF(falta saber o numero de artigos em que a palavra aparece)
-        //matriz_TFIDF[i][j] = TFIDF_calculo(tf,idf);
-        i++;
-    }
+        while (fgets(palavra, sizeof(palavra), vocabulario) != NULL) {
+            palavra[strcspn(palavra, "\n")] = 0;
+    
+            int M = strlen(palavra);
+            int lps[M];
+    
+            lps_calculo(lps,palavra,M);
+            int frequencia = kmp_calculo_com_erros(lps,palavra,T -> text,M);
+            float tf = fc_TF(frequencia, T -> tamanho); 
+            printf("%f\n",tf);
+            // IDF(falta saber o numero de artigos em que a palavra aparece)
+            //matriz_TFIDF[i][j] = TFIDF_calculo(tf,idf);
+            i++;
+        }
         j++;
         fclose(art);
         deletar_lista(lista);
@@ -406,7 +407,7 @@ Texto* ler_artigo(FILE *artigo) {
 
         atual_ftell = ftell(artigo);
     } while (atual_ftell != anterior_ftell);
-    printf("%s",texto->text);
+    // printf("%s\n",texto->text);  // teste
     return texto;
 }
 
@@ -434,7 +435,11 @@ float TFIDF_calculo(float fc_TF,float IDF){
 }
 
 int tamanho_arquivo(FILE *arquivo) {
-
+    if(arquivo == NULL)
+    {
+        printf("erro ao ler o arquivo");
+        return 0;
+    }
     fseek(arquivo, 0, SEEK_END);
     int tamanho = ftell(arquivo);
     rewind(arquivo);
