@@ -499,7 +499,7 @@ Texto* ler_artigo(FILE *artigo) {
         texto->tamanho++;
 
         // filtro deve retornar um char* alocado dinamicamente
-        char *palavra_filtrada = filtro_especial(palavra);
+        char *palavra_filtrada = removerAcento(palavra);
         filtro_maiusculo_para_minusculo(palavra_filtrada);
 
         tamanho_total += strlen(palavra_filtrada) + 1; 
@@ -638,7 +638,7 @@ void fc_matriz_TFIDF(float *TF, float *IDF, int tamanho_vocabulario, int quantid
     int j = 0;
     while (fscanf(vocabulario, "%s", palavra_nao_filtrada) != EOF) { // mudei para fscanf, assim é melhor
         int qnt_artigos_aparece = 0;
-        char *palavra_filtrada = filtro_especial(palavra_nao_filtrada);
+        char *palavra_filtrada = removerAcento(palavra_nao_filtrada);
         filtro_maiusculo_para_minusculo(palavra_filtrada);
         // printf("\n%s\n", palavra->conteudo);
         // palavra->conteudo[strcspn(palavra->conteudo, "\n")] = 0;
@@ -866,97 +866,97 @@ float elemento_indice_lista(Listafloat *lista, int ind){ //ind == indice
     return aux->valor;
 }
 
-int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j){
-    // j = indice de filtrado
-    // i = indice de str, que deve ser filtrada
-    // charespecial deve ser de 2 bytes, como ç á é.
-    // substitui é a substituicao do charespecial pelo char substitui
-    if(charespecial == NULL)
-    {
-        printf("caractere especial == NULL\n");
-        return 0;
-    }
-    if(str == NULL)
-    {
-        printf("str == NULL\n");
-        return 0;
-    }
-    if(filtrado == NULL)
-    {
-        printf("filtrado == NULL\n");
-        return 0;
-    }
-    if(strncmp(str+*i, charespecial, 2) == 0){
-        filtrado[*j] = 'a';
-        (*j)++;
-        (*i)++;
-    }
-    return 1;
-}
+// int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j){
+//     // j = indice de filtrado
+//     // i = indice de str, que deve ser filtrada
+//     // charespecial deve ser de 2 bytes, como ç á é.
+//     // substitui é a substituicao do charespecial pelo char substitui
+//     if(charespecial == NULL)
+//     {
+//         printf("caractere especial == NULL\n");
+//         return 0;
+//     }
+//     if(str == NULL)
+//     {
+//         printf("str == NULL\n");
+//         return 0;
+//     }
+//     if(filtrado == NULL)
+//     {
+//         printf("filtrado == NULL\n");
+//         return 0;
+//     }
+//     if(strncmp(str+*i, charespecial, 2) == 0){
+//         filtrado[*j] = 'a';
+//         (*j)++;
+//         (*i)++;
+//     }
+//     return 1;
+// }
 
-char *filtro_especial(char *palavra){
-    char *filtrado = malloc(strlen(palavra) + 1);
-    int j = 0;
-    /*
-    filtro atual: Ç, ç, Á, Ä, Ã, À, Â, á, ä, ã, à, â, é, è, ê, ë, É, Ë, È, Ê, Ö, Ó, Ò, Ô, Õ, ö, ó, ò, ô, õ, í, ì, î, ï, Í, Ì, Î, Ï, Ú, Ù, Û, Ü, ú, ù, û, ü
-    */
-    for(int i = 0; palavra[i] != '\0'; i++){
-        if(isprint(palavra[i])){
-            filtrado[j] = palavra[i];
-            j++;
-            continue;
-        }
-        verifica_caractere_especial("Ç", 'C', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ç", 'c', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Á", 'A', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ä", 'A', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ã", 'A', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("À", 'A', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Â", 'A', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("á", 'a', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ä", 'a', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ã", 'a', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("à", 'a', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("â", 'a', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("é", 'e', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("è", 'e', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ê", 'e', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ë", 'e', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("É", 'E', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ë", 'E', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("È", 'E', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ê", 'E', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ö", 'O', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ó", 'O', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ò", 'O', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ô", 'O', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Õ", 'O', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ö", 'o', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ó", 'o', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ò", 'o', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ô", 'o', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("õ", 'o', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("í", 'i', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ì", 'i', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("î", 'i', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ï", 'i', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Í", 'I', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ì", 'I', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Î", 'I', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ï", 'I', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ú", 'U', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ù", 'U', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Û", 'U', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("Ü", 'U', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ú", 'u', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ù", 'u', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("û", 'u', palavra, filtrado, &i, &j);
-        verifica_caractere_especial("ü", 'u', palavra, filtrado, &i, &j);
-    }
-    filtrado = realloc(filtrado, strlen(filtrado) + 1);
-    filtrado[j] = '\0';
-    return filtrado;
-}
+// char *filtro_especial(char *palavra){
+//     char *filtrado = malloc(strlen(palavra) + 1);
+//     int j = 0;
+//     /*
+//     filtro atual: Ç, ç, Á, Ä, Ã, À, Â, á, ä, ã, à, â, é, è, ê, ë, É, Ë, È, Ê, Ö, Ó, Ò, Ô, Õ, ö, ó, ò, ô, õ, í, ì, î, ï, Í, Ì, Î, Ï, Ú, Ù, Û, Ü, ú, ù, û, ü
+//     */
+//     for(int i = 0; palavra[i] != '\0'; i++){
+//         if(isprint(palavra[i])){
+//             filtrado[j] = palavra[i];
+//             j++;
+//             continue;
+//         }
+//         verifica_caractere_especial("Ç", 'C', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ç", 'c', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Á", 'A', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ä", 'A', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ã", 'A', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("À", 'A', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Â", 'A', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("á", 'a', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ä", 'a', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ã", 'a', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("à", 'a', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("â", 'a', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("é", 'e', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("è", 'e', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ê", 'e', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ë", 'e', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("É", 'E', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ë", 'E', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("È", 'E', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ê", 'E', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ö", 'O', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ó", 'O', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ò", 'O', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ô", 'O', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Õ", 'O', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ö", 'o', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ó", 'o', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ò", 'o', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ô", 'o', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("õ", 'o', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("í", 'i', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ì", 'i', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("î", 'i', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ï", 'i', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Í", 'I', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ì", 'I', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Î", 'I', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ï", 'I', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ú", 'U', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ù", 'U', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Û", 'U', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("Ü", 'U', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ú", 'u', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ù", 'u', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("û", 'u', palavra, filtrado, &i, &j);
+//         verifica_caractere_especial("ü", 'u', palavra, filtrado, &i, &j);
+//     }
+//     filtrado = realloc(filtrado, strlen(filtrado) + 1);
+//     filtrado[j] = '\0';
+//     return filtrado;
+// }
 
 char *filtro_maiusculo_para_minusculo(char *palavra){
     for(int i = 0; palavra[i] != '\0'; i++){
@@ -1002,4 +1002,41 @@ float deletar_final_lista_float(Listafloat *lista){
     res = delet_node->valor;
     free(delet_node);
     return res;
+}
+
+char* removerAcento(char* str) {
+    char* com_acento[] = {
+        "á", "à", "â", "ã", "ä", "é", "è", "ê", "ë", "í", "ì", "î", "ï",
+        "ó", "ò", "ô", "õ", "ö", "ú", "ù", "û", "ü", "ç", "Á", "À", "Â", "Ã", "Ä",
+        "É", "È", "Ê", "Ë", "Í", "Ì", "Î", "Ï", "Ó", "Ò", "Ô", "Õ", "Ö", "Ú", "Ù", "Û", "Ü", "Ç"
+    };
+    char* sem_acento[] = {
+        "a", "a", "a", "a", "a", "e", "e", "e", "e", "i", "i", "i", "i",
+        "o", "o", "o", "o", "o", "u", "u", "u", "u", "c", "A", "A", "A", "A", "A",
+        "E", "E", "E", "E", "I", "I", "I", "I", "O", "O", "O", "O", "O", "U", "U", "U", "U", "C"
+    };
+
+    char *resultado = (char *) malloc((strlen(str) + 1) * sizeof(char));
+    if (!resultado) return NULL;
+
+    char* p = resultado;
+
+    while (*str) {
+        int encontrado = 0;
+        for (int i = 0; i < sizeof(com_acento) / sizeof(com_acento[0]); ++i) {
+            size_t len = strlen(com_acento[i]);
+            if (strncmp(str, com_acento[i], len) == 0) {
+                strcpy(p, sem_acento[i]);
+                p += strlen(sem_acento[i]);
+                str += len;
+                encontrado = 1;
+                break;
+            }
+        }
+        if (!encontrado) {
+            *p++ = *str++;
+        }
+    }
+    *p = '\0';
+    return resultado;
 }
