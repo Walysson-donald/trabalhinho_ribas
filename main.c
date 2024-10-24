@@ -167,12 +167,15 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
 
 int verifica_caso_usuario_queira_recalcular_TFIDF();
 
-float similiaridade(int quantidade_artigo, float vetor_TFIDF[], Listafloat *S, float **matriz_TFIDF,int tamanho_vocabulario);
+Listafloat *similiaridade(int N, int quantidade_artigo, float vetor_TFIDF[], float **matriz_TFIDF,int tamanho_vocabulario);
 
 // char* remover_acentos(char *palavra);
 
 float modulo(float vetor[],int tamanho_vocabulario);
 
+float deletar_final_lista_float(Listafloat *lista);
+
+void adicionar_lista_float_com_prioridade(Listafloat *lista, float valor, int N);
 
 //  lista float para a resposta
 //  
@@ -989,10 +992,13 @@ float deletar_final_lista_float(Listafloat *lista){
     float res;
     Nodefloat *delet_node = lista->tail;
     lista->tail->anterior->proximo = NULL;
+
     if(lista->tail == lista->head){
         lista->head = NULL;
     }
+
     lista->tail = lista->tail->anterior;
     res = delet_node->valor;
+    free(delet_node);
     return res;
 }
