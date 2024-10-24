@@ -33,8 +33,7 @@ jfjkhf
 #include <stdio.h>
 #include <locale.h>
 #include <math.h>
-#include <wchar.h> // talvez nao seja necessario
-
+#include <ctype.h> // necessario para filtra caractere especial
 
 #define MAXIMA_QUANTIDADE_ALGARISMOS_ARTIGO 3
 #define MAXIMO_TAMANHO_PALAVRA 200
@@ -488,10 +487,10 @@ Texto* ler_artigo(FILE *artigo) {
     int atual_ftell = -1;
 
     int tamanho_total = 0;
-
+    
     do {
         anterior_ftell = atual_ftell;
-        if (fwscanf(artigo, " %s", palavra) == EOF) break;
+        if (fscanf(artigo, " %s", palavra) == EOF) break;
 
         texto->tamanho++;
 
@@ -561,7 +560,7 @@ int quantidade_palavras(FILE *arquivo) {
     int qnt_palavras = 0;
     char palavra[MAXIMO_TAMANHO_PALAVRA];
 
-    while(fwscanf(arquivo, "%s", palavra) != EOF){
+    while(fscanf(arquivo, "%s", palavra) != EOF){
         qnt_palavras++;
         // printf("1");
     }
@@ -646,7 +645,7 @@ void fc_matriz_TFIDF(float *TF, float *IDF, int tamanho_vocabulario, int quantid
     palavra->conteudo = malloc(sizeof(MAXIMO_TAMANHO_PALAVRA));
 
     int j = 0;
-    while (fwscanf(vocabulario, "%s", palavra->conteudo) != EOF) { // mudei para fscanf, assim é melhor
+    while (fscanf(vocabulario, "%s", palavra->conteudo) != EOF) { // mudei para fscanf, assim é melhor
         // printf("\n%s\n", palavra->conteudo);
         // palavra->conteudo[strcspn(palavra->conteudo, "\n")] = 0;
 
