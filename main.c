@@ -162,9 +162,9 @@ float desenfileirar(Pilha *P);
 
 void push(Pilha *P,float item);
 
-void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF);
+void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario);
 
-void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF);
+void calculo_vetor_busca(float *vetor_TFIDF, char query[], float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF);
 
 int verifica_caso_usuario_queira_recalcular_TFIDF();
 
@@ -178,6 +178,10 @@ float modulo(float vetor[],int tamanho_vocabulario);
 float deletar_final_lista_float(Listafloat *lista);
 
 void adicionar_lista_float_com_prioridade(Listafloat *lista, float valor, int N);
+
+Lista *leitura_arquivo_para_lista(FILE* arquivo);
+
+Lista *recolher_titulos_artigos_para_lista();
 
 //  lista float para a resposta
 //  
@@ -202,15 +206,21 @@ int main(void) {
     char query[MAXIMO_TAMANHO_QUERY];
     float *vetor_TFIDF, **matriz_TFIDF;
     int tamanho_vocabulario;
-    
+
+    Lista *vocabulario_palavras, *titulos_artigos;
     vocabulario = fopen("dados/vocabulary.txt", "r");
     tamanho_vocabulario = quantidade_palavras(vocabulario);
-    //fc que guarda o vocabulario deve ser adicionada
+
+    vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); // todas as palavras do vocabulario armazenado nessa lista
+
     fclose(vocabulario);
 
     vetor_TFIDF = malloc(sizeof(float) * tamanho_vocabulario);
 
+    titulos_artigos = recolher_titulos_artigos_para_lista();
     
+
+
     // basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo do diretorio especifico
     matriz_TFIDF = malloc(sizeof(float*) * tamanho_vocabulario);
     TF = malloc(sizeof(float*) * tamanho_vocabulario);
@@ -221,7 +231,7 @@ int main(void) {
         TF[i] = malloc(sizeof(float) * quantidade_artigo);
     }
 
-    fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF);
+    fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
 
     for(int i = 0; i < 5; i++){
         for(int j = 0; j < 5; j++){
@@ -600,32 +610,26 @@ Palavra *inicializar_palavra(){
     return palavra;
 }
 
-void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF){
+void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario){
     
-    Lista *vocabulario_palavras = criar_lista();
-    Lista *titulos = criar_lista();
-
-
-
-
+    
 
     FILE *art;
     Texto *T;
     // Palavra *palavra = inicializar_palavra(); // corrigo apos adicionar inicializar_palavra()
     
-    FILE *vocabulario = fopen("dados/vocabulary.txt", "r");
+    // FILE *vocabulario = fopen("dados/vocabulary.txt", "r"); //deletar essa linha substituido por:
+    Node *Nodeaux = vocabulario->head;
+
     // palavra->conteudo = malloc(MAXIMO_TAMANHO_PALAVRA);
-    char *palavra_nao_filtrada = malloc(MAXIMO_TAMANHO_PALAVRA);
+    // char *palavra_nao_filtrada = malloc(MAXIMO_TAMANHO_PALAVRA);
     int j = 0;
-    while (fscanf(vocabulario, "%s", palavra_nao_filtrada) != EOF) { 
+    while (Nodeaux != NULL) { 
         int qnt_artigos_aparece = 0;
-        char *palavra_filtrada = removerAcento(palavra_nao_filtrada);
+        char *palavra_filtrada = removerAcento(Nodeaux->palavra);
         filtro_maiusculo_para_minusculo(palavra_filtrada);
 
         // printf("\n%s\n", palavra->conteudo);
-        // palavra->conteudo[strcspn(palavra->conteudo, "\n")] = 0;
-
-        adicionar_final_lista(vocabulario_palavras, palavra_filtrada);
 
         int M = strlen(palavra_filtrada);
         int lps[M];
@@ -634,9 +638,11 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         for(int i = 1; i <= 1; i++){ //mudar
             art = abrir_artigo(i);
             T = ler_artigo(art);
-            printf("%d\n\n\n\n\n\n\n\n", strlen(T));
-            // adicionar_final_lista();
+
+            printf("%d\n\n\n\n\n\n\n\n", strlen(T->text));
+            
             printf("%d %s\n\n\n", i, T->text);
+
             int frequencia = kmp_calculo_com_erros(lps, palavra_filtrada, T -> text, M);
             float tf = fc_TF(frequencia, T -> tamanho);
             if (tf > 0){
@@ -646,13 +652,13 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             TF[i-1][j] = tf;
             // push(TF, tf);
 
-            fclose(art);
             deletar_texto(T); // faltou adicionar isso, memory leak ou tava sobreescrevendo
         }
         float idf = fc_IDF(qnt_artigos_aparece, quantidade_artigo);
         IDF[j] = idf;
         j++;
         // push(IDF,idf);
+        Nodeaux = Nodeaux->proximo;
         break; // apenas para debugar retirar isso daqui
     }
 
@@ -664,10 +670,9 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         }
     }
 
-    fclose(vocabulario);
 }
 
-void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF){
+void calculo_vetor_busca(float *vetor_TFIDF, char query[], float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF){
     
     query[strcspn(query, "\n")] = 0;
 
@@ -695,7 +700,7 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
             if (tf>0){
                 palavra -> qnt_artigos_aparece++;
             }
-            TF[i-1] = tf;
+            TF[i-1][j] = tf;
             // push(TF,tf);
 
             fclose(art);
@@ -711,7 +716,7 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
     }
     
     for(int i=0;i<count;i++){
-        vetor_TFIDF[i] = TFIDF_calculo(TF[i],IDF[i]);
+        vetor_TFIDF[i] = TFIDF_calculo(TF[i][j],IDF[i]);
     }
 
     tamanho_vetor = count;
@@ -1022,4 +1027,31 @@ char* removerAcento(char* str) {
     }
     *p = '\0';
     return resultado;
+}
+
+Lista *leitura_arquivo_para_lista(FILE* arquivo){
+    Lista *lista = criar_lista();
+    rewind(arquivo);
+    char palavra[MAXIMO_TAMANHO_PALAVRA];
+    while(fscanf(arquivo, "%s", palavra) != EOF){
+        adicionar_final_lista(lista, palavra);
+    }
+    return lista;
+}
+
+Lista *recolher_titulos_artigos_para_lista(){
+    char palavra[MAXIMO_TAMANHO_PALAVRA];
+    FILE *artigo;
+    Lista *titulos = criar_lista();
+    int i = 1;
+    do{
+        artigo = abrir_artigo(i);
+        if(artigo != NULL)
+        {
+            fgets(palavra, MAXIMO_TAMANHO_PALAVRA, artigo);
+            adicionar_final_lista(titulos, palavra);
+        }
+        i++;
+    }while(artigo != NULL);
+    return titulos;
 }
