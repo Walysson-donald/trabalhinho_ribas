@@ -167,7 +167,7 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
 
 int verifica_caso_usuario_queira_recalcular_TFIDF();
 
-float similiaridade(int quantidade_artigo, float vetor_TFIDF[], Lista *S, float **matriz_TFIDF,int tamanho_vocabulario);
+float similiaridade(int quantidade_artigo, float vetor_TFIDF[], Listafloat *S, float **matriz_TFIDF,int tamanho_vocabulario);
 
 // char* remover_acentos(char *palavra);
 
@@ -732,33 +732,33 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
     free(palavra);
 }
 
+// funcao deve calcular a similaridade entre o vetor de busca e a matriz tfidf, retorna uma listafloat dos N documentos com maiores S similaridade
+Listafloat *similiaridade(int N, int quantidade_artigo, float vetor_TFIDF[], float **matriz_TFIDF,int tamanho_vocabulario){
+    Listafloat *S = criar_lista_float();
 
-float similiaridade(int quantidade_artigo, float vetor_TFIDF[], Lista *S, float **matriz_TFIDF,int tamanho_vocabulario){
-    int j=0;
-    float numerador=0;
-    float vetor_coluna[tamanho_vocabulario];
+    for(int j = 0; j < quantidade_artigo; j++){
+        float numerador=0, A, B, result;
+        for(int i=0; i < tamanho_vocabulario; i++){
+            numerador += vetor_TFIDF[i] * matriz_TFIDF[i][j];
+        }
+        A = modulo( matriz_TFIDF[0] + j, tamanho_vocabulario);
+        B = modulo(vetor_TFIDF, tamanho_vocabulario);
+        result = numerador/(A * B);
 
-    for(int i=0;i<tamanho_vocabulario;i++){
-        vetor_coluna[i] = matriz_TFIDF[i][j];
+        if(S->tamanho < N){
+            adicionar_lista_float_com_prioridade(S, result, N);
+        }
     }
 
-    for(int i=0;i<tamanho_vocabulario;i++){
-        numerador += (vetor_TFIDF[i] * vetor_coluna[i]);
-    }
-
-    float A = modulo(vetor_coluna,tamanho_vocabulario);
-    float B = modulo(vetor_TFIDF,tamanho_vocabulario);
-    float result = (numerador/(A * B));
-
-    return result;
-
+    // for(int i=0;i<tamanho_vocabulario;i++){
+    //     numerador += (vetor_TFIDF[i] * vetor_coluna[i]);
+    // }
+    return S;
 }
 
 float modulo(float vetor[],int tamanho_vocabulario){
-    int M = tamanho_vocabulario;
     float soma=0;
-
-    for(int i=0;i<M;i++){
+    for(int i=0;i<tamanho_vocabulario;i++){
         soma += pow(vetor[i],2);
     } 
     return sqrt(soma);
@@ -862,8 +862,6 @@ float elemento_indice_lista(Listafloat *lista, int ind){ //ind == indice
     return aux->valor;
 }
 
-
-
 int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j){
     // j = indice de filtrado
     // i = indice de str, que deve ser filtrada
@@ -962,4 +960,39 @@ char *filtro_maiusculo_para_minusculo(char *palavra){
             palavra[i] = tolower(palavra[i]);
         }
     }
+}
+
+void adicionar_lista_float_com_prioridade(Listafloat *lista, float valor, int N){
+    Nodefloat *aux = lista->head;
+    int i = 0;
+    while(aux != NULL){
+        i++;
+        if(valor > aux->valor){
+            if(lista->tamanho == N){
+                deletar_final_lista_float(lista);
+            }
+            adicionar_meio_lista_float(lista, valor, i);
+            return;
+        }
+        aux = aux->proximo;
+    }
+    if(lista->tamanho < N){
+        adicionar_final_lista_float(lista, valor);
+    }
+}
+
+float deletar_final_lista_float(Listafloat *lista){
+    if(lista->tail == NULL) {
+        printf("erro ao deletar final da lista\n");
+        return -1;
+    }
+    float res;
+    Nodefloat *delet_node = lista->tail;
+    lista->tail->anterior->proximo = NULL;
+    if(lista->tail == lista->head){
+        lista->head = NULL;
+    }
+    lista->tail = lista->tail->anterior;
+    res = delet_node->valor;
+    return res;
 }
