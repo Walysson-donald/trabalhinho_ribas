@@ -168,6 +168,7 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
 int verifica_caso_usuario_queira_recalcular_TFIDF();
 
 Listafloat *similiaridade(int N, int quantidade_artigo, float vetor_TFIDF[], float **matriz_TFIDF,int tamanho_vocabulario);
+char* removerAcento(char* str) ;
 
 // char* remover_acentos(char *palavra);
 
