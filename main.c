@@ -181,7 +181,7 @@ int main(void) {
     // int opcao;
     // if(opcao = verifica_caso_usuario_queira_recalcular_TFIDF()){
     //     FILE *TFIDFarq = fopen("TFIDF.bin", "rb");
-
+    
     // } // precisa saber mais um pouco de informação sobre como vai ser o TFIDF, talvez a leitura deve ir para um int**
     // ideia: na funcao de calcular tfidf verificamos o verifica_caso_usuario_queira_recalcular_TFIDF() e entao decidimos o que deve ser feito
     
