@@ -79,6 +79,14 @@ typedef struct Palavra{
     char *conteudo;
 }Palavra;
 
+//temos uma string "virgem" que é o filtrado, conforme for identificado caractere especial,
+int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j);
+
+// essa funcao retorna um char* alocado dinamicamente, tome cuidado lembre de dar free
+char *filtro_especial(char *palavra);
+
+char *filtro_maiusculo_para_minusculo(char *palavra);
+
 Palavra *inicializar_palavra();
 
 Lista *criar_lista();
@@ -475,53 +483,32 @@ Texto *ler_artigo(FILE *artigo) {
 
 
 Texto* ler_artigo(FILE *artigo) {
-
     Texto *texto = malloc(sizeof(Texto));
-
 
     texto->text = NULL;
     texto-> tamanho = 0;
 
     char palavra[MAXIMO_TAMANHO_PALAVRA + 1];
-    int anterior_ftell = -1;
-    int atual_ftell = -1;
-
     int tamanho_total = 0;
     
-    do {
-        anterior_ftell = atual_ftell;
-        if (fscanf(artigo, " %s", palavra) == EOF) break;
-
+    while((fscanf(artigo, " %s", palavra) != EOF)){
         texto->tamanho++;
 
-        tamanho_total += strlen(palavra) + 1; 
+        // filtro deve retornar um char* alocado dinamicamente
+        char *palavra_filtrada = filtro_especial(palavra);
+        filtro_maiusculo_para_minusculo(palavra_filtrada);
 
+        tamanho_total += strlen(palavra_filtrada) + 1; 
         texto->text = realloc(texto->text, tamanho_total * sizeof(char));
 
         if (texto->tamanho == 1) {
-            strcpy(texto->text, palavra);
+            strcpy(texto->text, palavra_filtrada);
         } else {
             strcat(texto->text, " ");   
-            strcat(texto->text, palavra);
+            strcat(texto->text, palavra_filtrada);
         }
-
-        atual_ftell = ftell(artigo);
-
-    } while (atual_ftell != anterior_ftell); // acho que podemos mudar essa estrutura inteira para a debaixo: assim deletamos algumas condicoes e 2 int.
-
-    // while((fscanf(artigo, " %s", palavra) != EOF)){
-    //     texto->tamanho++;
-    //     // filtro(texto->text);
-    //     tamanho_total += strlen(palavra) + 1; 
-    //     texto->text = realloc(texto->text, tamanho_total * sizeof(char));
-    
-    //     if (texto->tamanho == 1) {
-    //         strcpy(texto->text, palavra);
-    //     } else {
-    //         strcat(texto->text, " ");   
-    //         strcat(texto->text, palavra);
-    //     }
-    // }
+        free(palavra_filtrada);
+    }
     return texto;
 }
 
@@ -639,31 +626,34 @@ void fc_matriz_TFIDF(float *TF, float *IDF, int tamanho_vocabulario, int quantid
     
     FILE *art;
     Texto *T;
-    Palavra *palavra = inicializar_palavra(); // corrigo apos adicionar inicializar_palavra()
+    // Palavra *palavra = inicializar_palavra(); // corrigo apos adicionar inicializar_palavra()
     
     FILE *vocabulario = fopen("dados/vocabulary.txt", "r");
-    palavra->conteudo = malloc(sizeof(MAXIMO_TAMANHO_PALAVRA));
-
+    // palavra->conteudo = malloc(MAXIMO_TAMANHO_PALAVRA);
+    char *palavra_nao_filtrada = malloc(MAXIMO_TAMANHO_PALAVRA);
     int j = 0;
-    while (fscanf(vocabulario, "%s", palavra->conteudo) != EOF) { // mudei para fscanf, assim é melhor
+    while (fscanf(vocabulario, "%s", palavra_nao_filtrada) != EOF) { // mudei para fscanf, assim é melhor
+        int qnt_artigos_aparece = 0;
+        char *palavra_filtrada = filtro_especial(palavra_nao_filtrada);
+        filtro_maiusculo_para_minusculo(palavra_filtrada);
         // printf("\n%s\n", palavra->conteudo);
         // palavra->conteudo[strcspn(palavra->conteudo, "\n")] = 0;
 
 
-        int M = strlen(palavra->conteudo);
+        int M = strlen(palavra_filtrada);
         int lps[M];
-        lps_calculo(lps, palavra->conteudo, M);
+        lps_calculo(lps, palavra_filtrada, M);
         
-        for(int i = 1; i <= quantidade_artigo; i++){
+        for(int i = 1; i <= 1; i++){
             art = abrir_artigo(i);
             T = ler_artigo(art);
 
-            // printf("%d %s\n\n\n", i, T->text); //verificar porque só vai até o texto 58/59                      ********************************************************************* PAREI AQUI1
+            printf("%d %s\n\n\n", i, T->text);
 
-            int frequencia = kmp_calculo_com_erros(lps, palavra->conteudo, T -> text, M);
+            int frequencia = kmp_calculo_com_erros(lps, palavra_filtrada, T -> text, M);
             float tf = fc_TF(frequencia, T -> tamanho);
             if (tf > 0){
-                palavra -> qnt_artigos_aparece++;
+                qnt_artigos_aparece++;
             }
 
             TF[i-1] = tf;
@@ -672,16 +662,17 @@ void fc_matriz_TFIDF(float *TF, float *IDF, int tamanho_vocabulario, int quantid
             fclose(art);
             deletar_texto(T); // faltou adicionar isso, memory leak ou tava sobreescrevendo
         }
-        float idf = fc_IDF(palavra->qnt_artigos_aparece,quantidade_artigo);
+        float idf = fc_IDF(qnt_artigos_aparece, quantidade_artigo);
         IDF[j] = idf;
         j++;
         // push(IDF,idf);
+        break; // apenas para debugar retirar isso daqui
     }
 
     for(int i = 0; i < tamanho_vocabulario; i++){
         //int idf = pop(IDF);
         for(int j = 0; j < quantidade_artigo; j++){ 
-            // matriz_TFIDF[i][j] = TFIDF_calculo(pop(TF), idf); //erro aqui, tem que: pop IDF uma unica vez para cada quantidade de artigo               ********************************************************************* PAREI AQUI2
+            // matriz_TFIDF[i][j] = TFIDF_calculo(pop(TF), idf); //erro aqui, tem que: pop IDF uma unica vez para cada quantidade de artigo
             matriz_TFIDF[i][j] = TFIDF_calculo(TF[j], IDF[i]);
         }
     }
@@ -711,7 +702,7 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
         for(int i = 1; i <= quantidade_artigo; i++){
             art = abrir_artigo(i);
             T = ler_artigo(art);
-            
+            // adicionar tratamenteo de palavra com menos de 3 letras aqui
             int frequencia = kmp_calculo_com_erros(lps,palavra->conteudo,T -> text,M);
             float tf = fc_TF(frequencia, T -> tamanho);
             if (tf>0){
@@ -738,38 +729,8 @@ void calculo_vetor_busca(float *vetor_TFIDF, char query[], float *TF, float *IDF
 
     tamanho_vetor = count;
     // vetor_TFIDF = realloc(vetor_TFIDF, sizeof(char) * tamanho_vetor);
-
+    free(palavra);
 }
-
-
-// char* remover_acentos(char *palavra) { //fazer algumas adaptacoes aqui funcao nao funciona
-//     int i, j = 0;
-//     char *palavra_sem_acentos = malloc(strlen(palavra) + 1); // +1 pra \0
-
-//     for (i = 0; palavra[i] != '\0'; i++) {
-//         switch (palavra[i]) {
-//             case 'á': case 'à': case 'ã': case 'â': case 'ä': palavra_sem_acentos[j++] = 'a'; break;
-//             case 'Á': case 'À': case 'Ã': case 'Â': case 'Ä': palavra_sem_acentos[j++] = 'A'; break;
-//             case 'é': case 'è': case 'ê': case 'ë': palavra_sem_acentos[j++] = 'e'; break;
-//             case 'É': case 'È': case 'Ê': case 'Ë': palavra_sem_acentos[j++] = 'E'; break;
-//             case 'í': case 'ì': case 'î': case 'ï': palavra_sem_acentos[j++] = 'i'; break;
-//             case 'Í': case 'Ì': case 'Î': case 'Ï': palavra_sem_acentos[j++] = 'I'; break;
-//             case 'ó': case 'ò': case 'õ': case 'ô': case 'ö': palavra_sem_acentos[j++] = 'o'; break;
-//             case 'Ó': case 'Ò': case 'Õ': case 'Ô': case 'Ö': palavra_sem_acentos[j++] = 'O'; break;
-//             case 'ú': case 'ù': case 'û': case 'ü': palavra_sem_acentos[j++] = 'u'; break;
-//             case 'Ú': case 'Ù': case 'Û': case 'Ü': palavra_sem_acentos[j++] = 'U'; break;
-//             case 'ç': palavra_sem_acentos[j++] = 'c'; break;
-//             case 'Ç': palavra_sem_acentos[j++] = 'C'; break;
-//             case 'ñ': palavra_sem_acentos[j++] = 'n'; break;
-//             case 'Ñ': palavra_sem_acentos[j++] = 'N'; break;
-//             default: palavra_sem_acentos[j++] = palavra[i]; break;
-//         }
-//     }
-    
-//     palavra_sem_acentos[j] = '\0';
-//     tolower(palavra_sem_acentos);
-//     return palavra_sem_acentos;
-// }
 
 
 float similiaridade(int quantidade_artigo, float vetor_TFIDF[], Lista *S, float **matriz_TFIDF,int tamanho_vocabulario){
@@ -899,4 +860,106 @@ float elemento_indice_lista(Listafloat *lista, int ind){ //ind == indice
         aux = aux->proximo;
     }
     return aux->valor;
+}
+
+
+
+int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j){
+    // j = indice de filtrado
+    // i = indice de str, que deve ser filtrada
+    // charespecial deve ser de 2 bytes, como ç á é.
+    // substitui é a substituicao do charespecial pelo char substitui
+    if(charespecial == NULL)
+    {
+        printf("caractere especial == NULL\n");
+        return 0;
+    }
+    if(str == NULL)
+    {
+        printf("str == NULL\n");
+        return 0;
+    }
+    if(filtrado == NULL)
+    {
+        printf("filtrado == NULL\n");
+        return 0;
+    }
+    if(strncmp(str+*i, charespecial, 2) == 0){
+        filtrado[*j] = 'a';
+        (*j)++;
+        (*i)++;
+    }
+    return 1;
+}
+
+char *filtro_especial(char *palavra){
+    char *filtrado = malloc(strlen(palavra) + 1);
+    int j = 0;
+    /*
+    filtro atual: Ç, ç, Á, Ä, Ã, À, Â, á, ä, ã, à, â, é, è, ê, ë, É, Ë, È, Ê, Ö, Ó, Ò, Ô, Õ, ö, ó, ò, ô, õ, í, ì, î, ï, Í, Ì, Î, Ï, Ú, Ù, Û, Ü, ú, ù, û, ü
+    */
+    for(int i = 0; palavra[i] != '\0'; i++){
+        if(isprint(palavra[i])){
+            filtrado[j] = palavra[i];
+            j++;
+            continue;
+        }
+        verifica_caractere_especial("Ç", 'C', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ç", 'c', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Á", 'A', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ä", 'A', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ã", 'A', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("À", 'A', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Â", 'A', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("á", 'a', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ä", 'a', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ã", 'a', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("à", 'a', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("â", 'a', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("é", 'e', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("è", 'e', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ê", 'e', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ë", 'e', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("É", 'E', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ë", 'E', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("È", 'E', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ê", 'E', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ö", 'O', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ó", 'O', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ò", 'O', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ô", 'O', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Õ", 'O', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ö", 'o', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ó", 'o', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ò", 'o', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ô", 'o', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("õ", 'o', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("í", 'i', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ì", 'i', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("î", 'i', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ï", 'i', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Í", 'I', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ì", 'I', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Î", 'I', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ï", 'I', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ú", 'U', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ù", 'U', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Û", 'U', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("Ü", 'U', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ú", 'u', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ù", 'u', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("û", 'u', palavra, filtrado, &i, &j);
+        verifica_caractere_especial("ü", 'u', palavra, filtrado, &i, &j);
+    }
+    filtrado = realloc(filtrado, strlen(filtrado) + 1);
+    filtrado[j] = '\0';
+    return filtrado;
+}
+
+char *filtro_maiusculo_para_minusculo(char *palavra){
+    for(int i = 0; palavra[i] != '\0'; i++){
+        if(isupper(palavra[i])){
+            palavra[i] = tolower(palavra[i]);
+        }
+    }
 }

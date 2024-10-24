@@ -13,22 +13,32 @@ void verifica_caractere_especial(char *comparar, char substitui, char *str, char
         (*i)++;
     }
 }
-
-void main(){
-    FILE *arq = fopen("dados/textos/texto_1.txt", "r");
-    char str[10] = "aáçd";
-    char filtrado[10];
-    int j = 0;
-    for(int i = 0; str[i] != '\0'; i++){
-        verifica_caractere_especial("ç", 'c', str, filtrado, &i, &j);
-        verifica_caractere_especial("á", 'a', str, filtrado, &i, &j);
-        //... aqui continua os filtros...
-        if(isprint(str[i])) 
-        {
-            filtrado[j] = str[i];
-            j++;
+char *filtro_maiusculo_para_minusculo(char *palavra){
+    for(int i = 0; palavra[i] != '\0'; i++){
+        if(isupper(palavra[i])){
+            palavra[i] = tolower(palavra[i]);
         }
     }
-    filtrado[j] = '\0';
+}
+void main(){
+   
+    
+    // FILE *arq = fopen("dados/textos/texto_1.txt", "r");
+    // char str[10] = "aáçd";
+    // char filtrado[10];
+    // int j = 0;
+    // for(int i = 0; str[i] != '\0'; i++){
+    //     verifica_caractere_especial("ç", 'c', str, filtrado, &i, &j);
+    //     verifica_caractere_especial("á", 'a', str, filtrado, &i, &j);
+    //     //... aqui continua os filtros...
+    //     if(isprint(str[i])) 
+    //     {
+    //         filtrado[j] = str[i];
+    //         j++;
+    //     }
+    // }
+    // filtrado[j] = '\0';
+    char filtrado[10] = "ABCDE";
+    filtro_maiusculo_para_minusculo(filtrado);
     printf("%s",filtrado);
 }
