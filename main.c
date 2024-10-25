@@ -264,7 +264,7 @@ int main(void) {
     printf("\n\nfinal\n\n");
     return 0;
 
-} //teste
+} 
 
 
 
