@@ -45,11 +45,13 @@ typedef struct temp_name_node{
     struct temp_name_node *anterior;
 }Node;
 
+
 typedef struct temp_name_node_float{
     float valor;
     struct temp_name_node_float *proximo;
     struct temp_name_node_float *anterior;
 }Nodefloat;
+
 
 typedef struct{
     int tamanho;
@@ -64,15 +66,12 @@ typedef struct{
     Node *tail; 
 }Lista;
 
+
 typedef struct Texto{
     char *text;
     int tamanho;
 }Texto;
 
-typedef struct Pilha{
-    float itens[500];
-    int topo;
-}Pilha;
 
 typedef struct Palavra{
     int qnt_artigos_aparece;
@@ -150,16 +149,6 @@ Texto *ler_artigo(FILE *artigo);
 float fc_TF(float frequencia,float tamanho);
 
 float fc_IDF(float num_docs_palavra_aparece,float num_doc_total);
-
-Pilha *inicializar_pilha();
-
-int isEmpty(Pilha *P);
-
-float pop(Pilha *P);
-
-float desenfileirar(Pilha *P);
-
-void push(Pilha *P,float item);
 
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario);
 
