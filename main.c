@@ -215,11 +215,11 @@ int main(void) {
     vocabulario = fopen("dados/vocabulary.txt", "r");
 
     tamanho_vocabulario = quantidade_palavras(vocabulario);
-    fclose(vocabulario);
     // printf("%d",tamanho_vocabulario);
 
     vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); // todas as palavras do vocabulario armazenado nessa lista
-
+    fclose(vocabulario);
+    printa_lista(vocabulario_palavras);
 
     titulos_artigos = recolher_titulos_artigos_para_lista();
     
@@ -582,17 +582,17 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
     // palavra->conteudo = malloc(MAXIMO_TAMANHO_PALAVRA);
     // char *palavra_nao_filtrada = malloc(MAXIMO_TAMANHO_PALAVRA);
     int i = 0;
-
     while (Nodeaux != NULL) { 
+        printf("1\n\n\n");
         int qnt_artigos_aparece = 0;
         char *palavra_filtrada = removerAcento(Nodeaux->palavra);
         filtro_maiusculo_para_minusculo(palavra_filtrada);
 
         // printf("\n%s\n", palavra->conteudo);
 
-        int M = strlen(palavra_filtrada);
+        int M = strlen(Nodeaux->palavra);
         int lps[M];
-        lps_calculo(lps, palavra_filtrada, M);
+        lps_calculo(lps, Nodeaux->palavra, M);
         
         for(int j = 1; j <= quantidade_artigo; j++){ //mudar
             art = abrir_artigo(i);
@@ -602,7 +602,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             
             printf("%d %s\n\n\n", i, T->text);
 
-            int frequencia = kmp_calculo_com_erros(lps, palavra_filtrada, T -> text, M);
+            int frequencia = kmp_calculo_com_erros(lps, Nodeaux->palavra, T -> text, M);
             float tf = fc_TF(frequencia, T -> tamanho);
             if (tf > 0){
                 qnt_artigos_aparece++;
@@ -612,7 +612,6 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             
 
             deletar_texto(T);
-            free(palavra_filtrada);
         }
         float idf = fc_IDF(qnt_artigos_aparece, quantidade_artigo);
         IDF[i] = idf;
@@ -887,7 +886,11 @@ Lista *leitura_arquivo_para_lista(FILE* arquivo){
     rewind(arquivo);
     char palavra[MAXIMO_TAMANHO_PALAVRA];
     while(fscanf(arquivo, "%s", palavra) != EOF){
-        adicionar_final_lista(lista, palavra);
+        char *palavra_filtrada = removerAcento(palavra);
+        filtro_maiusculo_para_minusculo(palavra_filtrada);
+        // printf("%s\n",palavra_filtrada);
+        adicionar_final_lista(lista, palavra_filtrada);
+        free(palavra_filtrada);
     }
     return lista;
 }
