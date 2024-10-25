@@ -639,7 +639,7 @@ void calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, int q
     
     FILE *art;
     Texto *T;
-    // Palavra *palavra = inicializar_palavra();
+// Palavra *palavra = inicializar_palavra();
     int tamanho_vetor;
     int count=0;
 
