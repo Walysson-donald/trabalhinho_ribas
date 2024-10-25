@@ -147,9 +147,9 @@ float TFIDF_calculo(float fc_TF,float IDF); //add ai rafa
 // passa um File* do artigo e retorna uma Lista * contendo todas as palavras do artigo
 Texto *ler_artigo(FILE *artigo);
 
-float fc_TF(int frequencia,int tamanho);
+float fc_TF(float frequencia,float tamanho);
 
-float fc_IDF(int num_docs_palavra_aparece,int num_doc_total);
+float fc_IDF(float num_docs_palavra_aparece,float num_doc_total);
 
 Pilha *inicializar_pilha();
 
@@ -219,7 +219,6 @@ int main(void) {
 
     vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); // todas as palavras do vocabulario armazenado nessa lista
     fclose(vocabulario);
-    printa_lista(vocabulario_palavras);
 
     titulos_artigos = recolher_titulos_artigos_para_lista();
     
@@ -237,8 +236,8 @@ int main(void) {
 
     fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
 
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 5; j++){
+    for(int i = 0; i < tamanho_vocabulario; i++){
+        for(int j = 0; j < quantidade_artigo; j++){
             printf("%f\t ",matriz_TFIDF[i][j]);
         }
         printf("\n");
@@ -256,7 +255,7 @@ int main(void) {
     printf("encerrando codigo\n");
 
     free(IDF);
-    for(int i=0;i<quantidade_artigo;i++){
+    for(int i=0; i < quantidade_artigo; i++){
         free(matriz_TFIDF[i]);
         free(TF[i]);
     }
@@ -455,6 +454,9 @@ FILE *abrir_artigo(int numero){
     sprintf(numero_string, "%d", numero);
     strcat(strcat(caminho_artigo, numero_string), ".txt");
     artigo = fopen(caminho_artigo, "r");
+    // if(artigo == NULL){
+    //     printf("Erro ao ler o artigo!\n");
+    // }
     return artigo;
 }
 
@@ -482,7 +484,8 @@ Texto* ler_artigo(FILE *artigo) {
 
     char palavra[MAXIMO_TAMANHO_PALAVRA + 1];
     int tamanho_total = 0;
-    
+    if(artigo == NULL)
+        printf("1\n\n\n");
     while((fscanf(artigo, " %s", palavra) != EOF)){
         texto->tamanho++;
 
@@ -499,7 +502,7 @@ Texto* ler_artigo(FILE *artigo) {
             strcat(texto->text, " ");   
             strcat(texto->text, palavra_filtrada);
         }
-        free(palavra_filtrada);
+        // free(palavra_filtrada);
     }
     return texto;
 }
@@ -517,11 +520,11 @@ void printa_lista(Lista *lista){
 
 
 
-float fc_TF(int frequencia,int tamanho ){
-    return (frequencia/tamanho);
+float fc_TF(float frequencia,float tamanho ){
+    return frequencia/tamanho;
 }
 
-float fc_IDF(int num_docs_palavra_aparece,int num_doc_total){
+float fc_IDF(float num_docs_palavra_aparece,float num_doc_total){
     return log10(num_doc_total/(num_docs_palavra_aparece+1));
 }
 
@@ -576,47 +579,46 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 
     FILE *art;
     Texto *T;
-    // FILE *vocabulario = fopen("dados/vocabulary.txt", "r"); //deletar essa linha substituindo por:
-    Node *Nodeaux = vocabulario->head;
-
-    // palavra->conteudo = malloc(MAXIMO_TAMANHO_PALAVRA);
-    // char *palavra_nao_filtrada = malloc(MAXIMO_TAMANHO_PALAVRA);
+    // printa_lista(vocabulario);
+    Node *nodeaux = vocabulario->head;
     int i = 0;
-    while (Nodeaux != NULL) { 
-        printf("1\n\n\n");
+    while (nodeaux != NULL) { 
         int qnt_artigos_aparece = 0;
-        char *palavra_filtrada = removerAcento(Nodeaux->palavra);
-        filtro_maiusculo_para_minusculo(palavra_filtrada);
-
+        // printf("%s",nodeaux->palavra);
         // printf("\n%s\n", palavra->conteudo);
 
-        int M = strlen(Nodeaux->palavra);
+        int M = strlen(nodeaux->palavra);
         int lps[M];
-        lps_calculo(lps, Nodeaux->palavra, M);
+        lps_calculo(lps, nodeaux->palavra, M);
         
-        for(int j = 1; j <= quantidade_artigo; j++){ //mudar
-            art = abrir_artigo(i);
+        for(int j = 1; j <= 1; j++){ //mudar
+            art = abrir_artigo(j);
+            if(art == NULL)     
+                break;
             T = ler_artigo(art);
+            // printf("%d ", i);
 
-            // printf("%d\n\n\n\n\n\n\n\n", strlen(T->text));
+            int frequencia = kmp_calculo_com_erros(lps, nodeaux->palavra, T -> text, M);
+            // if(frequencia != 0)
+            // printf("%d\n",frequencia);
+            // printf("%d",frequencia);
+            // printf("  %d",T->tamanho);
+
+            float tf = fc_TF((float)frequencia,(float) T -> tamanho);
             
-            printf("%d %s\n\n\n", i, T->text);
-
-            int frequencia = kmp_calculo_com_erros(lps, Nodeaux->palavra, T -> text, M);
-            float tf = fc_TF(frequencia, T -> tamanho);
-            if (tf > 0){
+            // printf("  tf: %lf\n",tf);
+            if (tf != 0){
                 qnt_artigos_aparece++;
             }
 
             TF[i][j-1] = tf;
             
-
             deletar_texto(T);
         }
-        float idf = fc_IDF(qnt_artigos_aparece, quantidade_artigo);
+        float idf = fc_IDF((float)qnt_artigos_aparece, (float)quantidade_artigo);
         IDF[i] = idf;
         i++;
-        Nodeaux = Nodeaux->proximo;
+        nodeaux = nodeaux->proximo;
          // apenas para debugar retirar isso daqui
     }
 
@@ -855,7 +857,6 @@ char* removerAcento(char* str) {
         "o", "o", "o", "o", "o", "u", "u", "u", "u", "c", "A", "A", "A", "A", "A",
         "E", "E", "E", "E", "I", "I", "I", "I", "O", "O", "O", "O", "O", "U", "U", "U", "U", "C"
     };
-
     char *resultado = (char *) malloc((strlen(str) + 1) * sizeof(char));
     if (!resultado) return NULL;
 
