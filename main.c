@@ -163,7 +163,7 @@ void push(Pilha *P,float item);
 
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario);
 
-void calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF);
+void calculo_vetor_busca(int N, char *query, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario);
 
 int verifica_caso_usuario_queira_recalcular_TFIDF();
 
@@ -210,7 +210,7 @@ int main(void) {
     FILE *vocabulario;
     char query[MAXIMO_TAMANHO_QUERY];
     float **matriz_TFIDF;
-    int tamanho_vocabulario;
+    int tamanho_vocabulario, N;
     Lista *vocabulario_palavras, *titulos_artigos;
     vocabulario = fopen("dados/vocabulary.txt", "r");
 
@@ -244,7 +244,6 @@ int main(void) {
         printf("\n");
     }
     do{
-        int N;
         printf("(digite 0 para encerrar o programa)\n");
         printf("digite sua query: ");
         scanf("%d", &N);
@@ -601,7 +600,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 
             // printf("%d\n\n\n\n\n\n\n\n", strlen(T->text));
             
-            // printf("%d %s\n\n\n", i, T->text);
+            printf("%d %s\n\n\n", i, T->text);
 
             int frequencia = kmp_calculo_com_erros(lps, palavra_filtrada, T -> text, M);
             float tf = fc_TF(frequencia, T -> tamanho);
