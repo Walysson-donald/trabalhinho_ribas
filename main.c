@@ -7,7 +7,7 @@ tolower nele
 adiciona na palavra/lista depende de coimo vamos fazer
 separa considerando ' '
 jfjkhf
-
+asdasd
 
 */
 
