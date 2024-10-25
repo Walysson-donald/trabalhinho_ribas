@@ -561,51 +561,6 @@ int verifica_caso_usuario_queira_recalcular_TFIDF(){
     return 0;
 }
 
-// Pilha *inicializar_pilha(){
-//     Pilha *P = (Pilha *) malloc(sizeof(Pilha));
-//     P -> topo = -1; // -1 pois nao tem nenhum elemento ao iniciar, contagem de linguagem programacao
-//     return P;
-// }
-
-// int isEmpty(Pilha *P){
-//     return (P -> topo == -1);
-// }
-
-// void push(Pilha *P,float item){
-//     P->topo++;
-//     P->itens[P->topo] = item;
-// }
-
-// float pop(Pilha *P){
-//         if(isEmpty(P)){
-//         printf("Pilha vazia");
-//         return -1;
-//     }
-//     return P->itens[P->topo--];
-// }
-
-// float desenfileirar(Pilha *P){
-
-//     if(isEmpty(P)){
-//         printf("Pilha vazia");
-//         return -1;
-//     }
-
-//     Pilha *aux = inicializar_pilha();
-    
-//     while(!isEmpty(P)){
-//         push(aux,pop(P));
-//     }
-
-//     float inicio_fila = pop(aux);
-
-//     while(!isEmpty(aux)){
-//         push(P,pop(aux));
-//     }
-
-//     return inicio_fila;
-// }
-
 Palavra *inicializar_palavra(){
     Palavra *palavra = malloc(sizeof(Palavra));
     palavra->conteudo = NULL;
