@@ -1,6 +1,6 @@
 
 /*
-recebe um unico char do artigo
+recebe um unico char do artigoasdasd
 verifica se é caracter especial
 caso sim trate ele
 tolower nele
