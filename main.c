@@ -225,12 +225,12 @@ int main(void) {
 
     fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
 
-    for(int i = 0; i < tamanho_vocabulario; i++){
-        for(int j = 0; j < quantidade_artigo; j++){
-            printf("%f\t ",matriz_TFIDF[i][j]);
-        }
-        printf("\n");
-    }
+    // for(int i = 0; i < tamanho_vocabulario; i++){
+    //     for(int j = 0; j < quantidade_artigo; j++){
+    //         printf("%f\t ",matriz_TFIDF[i][j]);
+    //     }
+    //     printf("\n");
+    // }
     do{
         printf("(digite 0 para encerrar o programa)\n");
         printf("digite sua query: ");
@@ -598,12 +598,16 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             // printf("  tf: %lf\n",tf);
             if (tf != 0){
                 qnt_artigos_aparece++;
-            }
+
+            }   
+                
 
             TF[i][j-1] = tf;
             
             deletar_texto(T);
         }
+        
+
         float idf = fc_IDF((float)qnt_artigos_aparece, (float)quantidade_artigo);
         IDF[i] = idf;
         i++;
@@ -614,8 +618,11 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
     for(int i = 0; i < tamanho_vocabulario; i++){
         
         for(int j = 0; j < quantidade_artigo; j++){ 
-            matriz_TFIDF[i][j] = TFIDF_calculo(TF[i][j], IDF[i]);   //observe: coluna *matriz_TFIDF + j, ou matriz_TFIDF[0] + j sao os tfidf de todas 
-        }                                                           //palavras do vocabulario (em ordem do arquivo vocab..) do artigo j
+            
+            matriz_TFIDF[i][j] = TFIDF_calculo(TF[i][j], IDF[i]);   //observe: coluna *matriz_TFIDF + j, ou matriz_TFIDF[0] + j sao os tfidf de todas palavras do vocabulario (em ordem do arquivo vocab..) do artigo j
+            // if(matriz_TFIDF[i][j] !=0)
+            //     printf("%f",matriz_TFIDF[i][j]);
+        }                                                        
     }
 
 }
