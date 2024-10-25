@@ -1,31 +1,3 @@
-
-/*
-recebe um unico char do artigoasdasd
-verifica se é caracter especial
-caso sim trate ele
-tolower nele
-adiciona na palavra/lista depende de coimo vamos fazer
-separa considerando ' '
-
-*/
-
-
-/*
-    Nome de variavel com duas palvras: nome1_nome2 (da pra mudar caso se queira).
-    Sem comentarios extremamente zueiros, uma piada cá ou lá taokei, maioria dos comentarios,      quando tiver, deve ser explicativos.
-    Structs typdef deve conter a primeira letra maiuscula.
-    Segue estrutura de {} (tanto para for, if ou outra coisa), que vamos usar:
-    if (1 == 1){
-        printf("Hello World!");
-        ...
-    }
-    Codigo deve ser modularizado, conter diversas funcoes que vamos precisar, obrigatoriamente     vamos usar o cabeçalho da função em cima da main, e desenvolver ela por extenso a baixo da     main.
-    Vamos tentar deixar as variaveis em portugues e por extenso, palavra (ao inves de val), caso     a palavra for grande (>10 letras, talvez) podemos ver um jeito de abreviar caso precisa.
-
-    caso queira fazer sugestao pra manter o codigo limpo add embaixo dessa linha:
-    teste
-*/
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
