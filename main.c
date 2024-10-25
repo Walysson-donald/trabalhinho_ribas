@@ -183,6 +183,8 @@ Lista *leitura_arquivo_para_lista(FILE* arquivo);
 
 Lista *recolher_titulos_artigos_para_lista();
 
+void matriz_binario(float **matrix, int linhas, int colunas);
+
 //  lista float para a resposta
 //  
 
@@ -1062,4 +1064,21 @@ Lista *recolher_titulos_artigos_para_lista(){
         i++;
     }while(artigo != NULL);
     return titulos;
+}
+
+void matriz_binario(float **matrix, int linhas, int colunas){
+
+    FILE *file = fopen("arquivo.b", "wb");
+    if (file == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    fwrite(&linhas, sizeof(float), 1, file);
+    fwrite(&colunas, sizeof(float), 1, file);
+    
+    for (int i = 0; i < linhas; i++) {
+        fwrite(matrix[i], sizeof(float), colunas, file);
+    }
+    
+    fclose(file);
 }
