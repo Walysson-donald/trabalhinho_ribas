@@ -36,6 +36,7 @@ separa considerando ' '
 #define MAXIMA_QUANTIDADE_ALGARISMOS_ARTIGO 3
 #define MAXIMO_TAMANHO_PALAVRA 200
 #define MAXIMO_TAMANHO_QUERY 100
+#define MAXIMA_QUANTIDADE_TAMANHO_TITULO 500
 
 typedef struct temp_name_node{
     char *palavra;
@@ -239,15 +240,16 @@ int main(void) {
         printf("\n");
     }
     do{
+        int N;
         printf("(digite 0 para encerrar o programa)\n");
         printf("digite sua query: ");
+        scanf("%d", &N);
         fgets(query,sizeof(query),stdin);
-
-        if(query[0] != '0')
-            calculo_vetor_busca(query, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF);
+        if(N != 0)
+            calculo_vetor_busca(N, query, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
         // Nodefloat *similiaridade();
         
-    }while(query[0] != '0');
+    }while(N != 0);
     printf("encerrando codigo\n");
 
     free(IDF);
@@ -625,26 +627,24 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 
 }
 
-void calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF){
+void calculo_vetor_busca(int N, char *query, float *IDF, int tamanho_vocabulario, int quantidade_artigo, float **matriz_TFIDF, Lista *vocabulario){
     float *vetor_busca;
     vetor_busca = malloc(sizeof(float) * tamanho_vocabulario);
     for(int i = 0; i < tamanho_vocabulario; i++)
         vetor_busca[i] = 0;
     
-    int N;
-    query[strcspn(query, "\n")] = 0;
-    
+    // query[strcspn(query, "\n")] = 0;
     FILE *art;
     Texto *T;
-// Palavra *palavra = inicializar_palavra();
+    // Palavra *palavra = inicializar_palavra();
     int tamanho_vetor;
     int count=0;
 
     // palavra -> conteudo = strtok(query, " "); 
 
-    N = atoi(query);
 
-    // palavra -> conteudo = strtok(NULL, " ");
+
+    
 
     int j = 0;
     // while (palavra->conteudo != NULL) { //arrumar isso
@@ -692,14 +692,17 @@ Listafloat *similiaridade(int N, int quantidade_artigo, float vetor_busca[], flo
     Listafloat *S = criar_lista_float();
 
     for(int j = 0; j < quantidade_artigo; j++){
+
         float numerador=0, A, B, result;
+
         for(int i=0; i < tamanho_vocabulario; i++){
             numerador += vetor_busca[i] * matriz_TFIDF[i][j];
         }
-        A = modulo( matriz_TFIDF[0] + j, tamanho_vocabulario);
+
+        A = modulo(matriz_TFIDF[0] + j, tamanho_vocabulario);
         B = modulo(vetor_busca, tamanho_vocabulario);
         result = numerador/(A * B);
-        adicionar_lista_float_com_prioridade(S, result, N); // caso valor nao satisfatorio, nao será adicionado valor
+        // adicionar_lista_float_com_prioridade(S, result, N); // caso valor nao satisfatorio, nao será adicionado valor
 
     }
 
@@ -911,7 +914,7 @@ Lista *leitura_arquivo_para_lista(FILE* arquivo){
 }
 
 Lista *recolher_titulos_artigos_para_lista(){
-    char titulo_palavra[600];
+    char titulo_palavra[MAXIMA_QUANTIDADE_TAMANHO_TITULO + 1];
     FILE *artigo;
     Lista *titulos = criar_lista();
     int i = 1;
@@ -921,8 +924,8 @@ Lista *recolher_titulos_artigos_para_lista(){
         {
             fgets(titulo_palavra, sizeof(titulo_palavra), artigo);
             adicionar_final_lista(titulos, titulo_palavra);
+            fclose(artigo);
         }
-        fclose(artigo);
         i++;
     }while(artigo != NULL);
     return titulos;
