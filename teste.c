@@ -86,7 +86,7 @@ int verifica_caractere_especial(char *charespecial, char substitui, char *str, c
 // essa funcao retorna um char* alocado dinamicamente, tome cuidado lembre de dar free
 char *filtro_especial(char *palavra);
 
-char *filtro_maiusculo_para_minusculo(char *palavra);
+void *filtro_maiusculo_para_minusculo(char *palavra);
 
 Palavra *inicializar_palavra();
 
@@ -945,7 +945,7 @@ float elemento_indice_lista(Listafloat *lista, int ind){ //ind == indice
 //     return filtrado;
 // }
 
-char *filtro_maiusculo_para_minusculo(char *palavra){
+void *filtro_maiusculo_para_minusculo(char *palavra){
     for(int i = 0; palavra[i] != '\0'; i++){
         if(isupper(palavra[i])){
             palavra[i] = tolower(palavra[i]);
