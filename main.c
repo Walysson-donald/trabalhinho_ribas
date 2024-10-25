@@ -594,7 +594,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         int lps[M];
         lps_calculo(lps, palavra_filtrada, M);
         
-        for(int j = 1; j <= 1; j++){ //mudar
+        for(int j = 1; j <= quantidade_artigo; j++){ //mudar
             art = abrir_artigo(i);
             T = ler_artigo(art);
 
@@ -618,7 +618,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         IDF[i] = idf;
         i++;
         Nodeaux = Nodeaux->proximo;
-        break; // apenas para debugar retirar isso daqui
+         // apenas para debugar retirar isso daqui
     }
 
     for(int i = 0; i < tamanho_vocabulario; i++){
