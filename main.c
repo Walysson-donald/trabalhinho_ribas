@@ -8,7 +8,8 @@ adiciona na palavra/lista depende de coimo vamos fazer
 separa considerando ' '
 jfjkhf
 asdasd
-
+asdojlililjijlixcv
+lxhvxcçlj
 */
 
 
