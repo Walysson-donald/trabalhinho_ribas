@@ -10,9 +10,9 @@
                 "UNICODE",
                 "_UNICODE"
             ],
+            "compilerPath": "C:/MinGW/bin/gcc.exe",
             "cStandard": "c17",
-            "cppStandard": "c++17",
-            "compilerPath": "C:/MinGW/bin/gcc.exe"
+            "cppStandard": "c++17"
         }
     ],
     "version": 4

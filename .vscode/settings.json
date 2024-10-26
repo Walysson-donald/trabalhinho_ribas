@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "xutility": "c",
+        "charconv": "c",
+        "cstdio": "c",
+        "xlocnum": "c",
+        "*.txt": "c",
+        "string.h": "c",
+        "stdio.h": "c"
+    }
+}
