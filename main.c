@@ -130,7 +130,7 @@ float modulo(double *vetor,int tamanho_vocabulario);
 
 void deletar_final_lista_res(Lista_resposta *lista);
 
-void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra, int N);
+void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra);
 
 Lista *leitura_arquivo_para_lista(FILE* arquivo);
 
@@ -191,12 +191,15 @@ int main(void) {
         printf("digite sua query: ");
         scanf("%d", &N);
         fgets(query,sizeof(query),stdin);
-        if(N != 0){
-            vetor_busca = calculo_vetor_busca(query, IDF, tamanho_vocabulario, vocabulario_palavras);
-            printf("Os N = %d artigos mais relevantes para a busca: %s, são:\n", N, query);
+        
+        if(N > 0){
+            char *query_filtrado = removerAcento(query);
+            vetor_busca = calculo_vetor_busca(query_filtrado, IDF, tamanho_vocabulario, vocabulario_palavras);
+            printf("Os N = %d artigos mais relevantes para a busca: %s, são:\n", N, query_filtrado);
             similiaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulos_artigos);
+            free(query_filtrado);
         }
-    }while(N != 0);
+    }while(N > 0);
     
     for(int i=0; i < tamanho_vocabulario; i++){
         free(matriz_TFIDF[i]);
@@ -205,7 +208,8 @@ int main(void) {
     free(IDF);
     free(TF);
     free(matriz_TFIDF);
-
+    deletar_lista(titulos_artigos);
+    deletar_final_lista(vocabulario_palavras);
     printf("codigo encerrado com sucesso\n");
     
     return 0;
@@ -553,6 +557,7 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
     
     // Palavra *palavra = inicializar_palavra();
     quantidade_palavras = quantidade_palavra_em_string(query);
+    printf("%d\n",quantidade_palavras);
     palavra_query = strtok(query, " "); 
 
     // int j = 0;
@@ -578,6 +583,7 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
 void similiaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo){
 
     Lista_resposta *resposta = criar_lista_res();       //embora é chamado lista se comporta como uma fila com insercao priorirataria 
+    
     for(int j = 0; j < quantidade_artigo; j++){
         
         double numerador=0, A, B, result;
@@ -590,22 +596,22 @@ void similiaridade(int N, int quantidade_artigo, double *vetor_busca, double **m
         if(A * B == 0){
             continue;
         }
-            printf("%d\n",j);
         result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
         if(resposta->tamanho == 0){
             adicionar_inicio_lista_res(resposta, result, elemento_indice_lista(titulo, j));
             continue;
         }
-        if(resposta->tail->valor < result){
+        if(resposta->tail->valor <= result){
             if(resposta->tamanho == N){
                 deletar_final_lista_res(resposta);
             }
-            adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j), N);     //falta aqui verificar se funciona correto
+            adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j));     //falta aqui verificar se funciona correto
         }
         // printf("a\n\n\n\n\n\n");
         // Lista *walysson = criar_lista();
         // Lista *william = criar_lista();
     }
+    printf("%d\n\n", resposta->tamanho);
     printa_lista_res(resposta);
     deletar_lista_res(resposta);
     free(vetor_busca);
@@ -745,10 +751,11 @@ void filtro_maiusculo_para_minusculo(char *palavra){
     }
 }
 
-void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra, int N){
+void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra){
     Node_resposta *aux = lista->head;
     int i = 0;
     while(aux != NULL){
+        printf("a");
         if(valor > aux->valor){
             adicionar_meio_lista_res(lista, valor, palavra, i);
             return;
