@@ -1,0 +1,2 @@
+frequencia);
+            // printf("%lf\n",
