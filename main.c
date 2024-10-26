@@ -522,7 +522,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             T = ler_artigo(art);
 
             int frequencia = kmp_calculo_com_erros(lps, nodeaux->palavra, T -> text, M);
-
+            
             double tf = fc_TF((float)frequencia,(float) T -> tamanho);
             
             if (tf != 0){
@@ -601,7 +601,6 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
         B = modulo(vetor_busca, tamanho_vocabulario);
         if(A * B == 0){
             // printf("%d\n",j);
-        printf("%d\n",j);
             continue;
         }
         // printf("%lf\n",result);
@@ -611,19 +610,22 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             if(result == 0){
                 continue;
             }
-            
             adicionar_inicio_lista_res(resposta, result, elemento_indice_lista(titulo, j));
-            
             continue;
         }
-        printf("%lf\t", result);
-        printf("%lf\t", resposta->tail->valor);
-        printf("%lf\n", result);
+
+        // printf("%d\t",j);
+        // printf("%d\t",resposta->tamanho);
+        // printf("%lf\t", result);
+        // printf("%lf\t", resposta->tail->valor);
+        // printf("%lf\n", result);
+        
         if(resposta->tail->valor <= result){
             if(resposta->tamanho == N){
+            // printf("\ncheguei aqui\n");
                 deletar_final_lista_res(resposta);
             }
-            printf("1\n\n\n");
+            
             adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j), N);     //falta aqui verificar se funciona correto
         }
         // Lista *walysson = criar_lista();
@@ -772,12 +774,13 @@ void filtro_maiusculo_para_minusculo(char *palavra){
 
 void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra, int N){
     if(lista->tamanho == 0){
+        
         adicionar_inicio_lista_res(lista, valor, palavra);
+        return;
     }
     Node_resposta *aux = lista->head;
     int i = 0;
     while(aux != NULL){
-        printf("a");
         if(valor > aux->valor){
             adicionar_meio_lista_res(lista, valor, palavra, i);
             return;
@@ -795,14 +798,15 @@ void deletar_final_lista_res(Lista_resposta *lista){
         printf("erro ao deletar final da lista\n");
         return;
     }
-    
     Node_resposta *delet_node = lista->tail;
-    lista->tail->anterior->proximo = NULL;
-
     if(lista->tail == lista->head){
         lista->head = NULL;
+        lista->tail = NULL;
+    }else{
+        lista->tail->anterior->proximo = NULL;
+        lista->tail = lista->tail->anterior;
     }
-    lista->tail = lista->tail->anterior;
+    // printf("\ncheguei aqui\n");
     free(delet_node->palavra);
     free(delet_node);
     lista->tamanho--;
