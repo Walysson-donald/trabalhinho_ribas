@@ -905,7 +905,6 @@ void matriz_binario(float **matrix, int linhas, int colunas){
     fclose(file);
 }
 
-
 int buscar_palavra_lista(Lista *vocabulario, char *palavra_query){
     if(vocabulario == NULL){
         printf("vocabulario lista é nula, erro\n");
