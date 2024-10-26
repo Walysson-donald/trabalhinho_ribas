@@ -126,7 +126,7 @@ char* removerAcento(char* str) ;
 
 // char* remover_acentos(char *palavra);
 
-float modulo(double *vetor,int tamanho_vocabulario);
+double modulo(double *vetor,int tamanho_vocabulario);
 
 void deletar_final_lista_res(Lista_resposta *lista);
 
@@ -147,7 +147,7 @@ int main(void) {
 
     setlocale(LC_ALL, "Portuguese");
     int quantidade_artigo = quantidade_artigo_calculo();    
-
+    
     // IMPORTANTE:
     // precisa criar um meio de armazenar o tfidf apos ele ser calculado, e se haver um tfidf apenas leia o arquivo ao inves de calcular tudo denovo.
     // int opcao;
@@ -588,19 +588,25 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
     
     for(int j = 0; j < quantidade_artigo; j++){
         
-        double numerador=0, A, B, result;
+        double numerador=0, A = 0, B, result;
         for(int i=0; i < tamanho_vocabulario; i++){
             numerador += vetor_busca[i] * matriz_TFIDF[i][j];
         }
 
-        A = modulo(matriz_TFIDF[0] + j, tamanho_vocabulario);
+        // A = modulo(matriz_TFIDF[0] + j, tamanho_vocabulario);
+        for(int i = 0; i < tamanho_vocabulario; i++){
+            A += powf(matriz_TFIDF[i][j],2);
+        }
+        A = sqrtf(A);
         B = modulo(vetor_busca, tamanho_vocabulario);
         if(A * B == 0){
+            // printf("%d\n",j);
             continue;
         }
+        printf("%lf\n",numerador);
+        // printf("%lf\n",result);
         result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
         // printf("%lf\n", result);
-        
         if(resposta->tamanho == 0){
             if(result == 0){
                 continue;
@@ -624,12 +630,12 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
     free(vetor_busca);
 }
 
-float modulo(double *vetor,int tamanho_vocabulario){
-    float soma=0;
+double modulo(double *vetor,int tamanho_vocabulario){
+    double soma=0;
     for(int i=0;i<tamanho_vocabulario;i++){
-        soma += pow(vetor[i],2);
+        soma += powf(vetor[i],2);
     } 
-    return sqrt(soma);
+    return sqrtf(soma);
 }
 
 void deletar_texto(Texto *texto){
