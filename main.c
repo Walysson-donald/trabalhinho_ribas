@@ -45,18 +45,6 @@ typedef struct Texto{
     int tamanho;
 }Texto;
 
-
-// typedef struct Palavra{
-//     int qnt_artigos_aparece;
-//     char *conteudo;
-// }Palavra;
-
-//temos uma string "virgem" que é o filtrado, conforme for identificado caractere especial,
-// int verifica_caractere_especial(char *charespecial, char substitui, char *str, char *filtrado, int *i, int *j);
-
-// essa funcao retorna um char* alocado dinamicamente, tome cuidado lembre de dar free
-// char *filtro_especial(char *palavra);
-
 void filtro_maiusculo_para_minusculo(char *palavra);
 
 // Palavra *inicializar_palavra();
@@ -73,7 +61,7 @@ void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavr
 
 void adicionar_final_lista_res(Lista_resposta *lista, float valor, char *palavra);
 
-float elemento_indice_res(Lista_resposta *lista, int ind);
+// float elemento_indice_res(Lista_resposta *lista, int ind);
 
 void deletar_lista_res(Lista_resposta *lista);
 
@@ -154,15 +142,11 @@ int quantidade_palavra_em_string(char *str);
 
 int buscar_palavra_lista(Lista *vocabulario, char *palavra_query);
 
-//  lista float para a resposta
-//  
 
 int main(void) {
 
     setlocale(LC_ALL, "Portuguese");
     int quantidade_artigo = quantidade_artigo_calculo();    
-
-    // printf("\n%d\n\n", quantidade_artigo);
 
     // IMPORTANTE:
     // precisa criar um meio de armazenar o tfidf apos ele ser calculado, e se haver um tfidf apenas leia o arquivo ao inves de calcular tudo denovo.
@@ -189,7 +173,7 @@ int main(void) {
     
 
 
-    // basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo do diretorio especifico
+    // basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo
     matriz_TFIDF = malloc(sizeof(double*) * tamanho_vocabulario);
     TF = malloc(sizeof(float*) * tamanho_vocabulario);
     IDF = malloc(sizeof(float) * quantidade_artigo); 
@@ -201,13 +185,6 @@ int main(void) {
 
     fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
 
-    // for(int i = 0; i < tamanho_vocabulario; i++){
-    //     for(int j = 0; j < quantidade_artigo; j++){
-    //         // if(matriz_TFIDF[i][j])
-    //             printf("%lf\t ",matriz_TFIDF[i][j]);
-    //     }
-    //     printf("\n");
-    // }
     do{
         double *vetor_busca;
         printf("(digite 0 para encerrar o programa)\n");
@@ -220,8 +197,7 @@ int main(void) {
             similiaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulos_artigos);
         }
     }while(N != 0);
-    printf("encerrando codigo\n");
-
+    
     for(int i=0; i < tamanho_vocabulario; i++){
         free(matriz_TFIDF[i]);
         free(TF[i]);
@@ -230,6 +206,8 @@ int main(void) {
     free(TF);
     free(matriz_TFIDF);
 
+    printf("codigo encerrado com sucesso\n");
+    
     return 0;
 
 } 
@@ -515,12 +493,6 @@ int verifica_caso_usuario_queira_recalcular_TFIDF(){
     return 0;
 }
 
-// Palavra *inicializar_palavra(){
-//     Palavra *palavra = malloc(sizeof(Palavra));
-//     palavra->conteudo = NULL;
-//     palavra->qnt_artigos_aparece = 0;
-//     return palavra;
-// }
 
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario){
     FILE *art;
@@ -535,7 +507,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         int lps[M];
         lps_calculo(lps, nodeaux->palavra, M);
         
-        for(int j = 1; j <= quantidade_artigo; j++){ //mudar
+        for(int j = 1; j <= quantidade_artigo; j++){ 
             art = abrir_artigo(j);
             if(art == NULL)     
                 break;
@@ -600,8 +572,7 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
     }
     
     return vetor_busca;
-    // similiaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulo);
-    // free(vetor_busca);
+    
 }
 
 void similiaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo){
