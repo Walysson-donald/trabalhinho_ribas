@@ -189,8 +189,8 @@ int main(void) {
         double *vetor_busca;
         printf("(digite 0 para encerrar o programa)\n");
         printf("digite sua query: ");
-        scanf("%d", &N);
-        scanf("%[^\n]s", query);
+        scanf(" %d", &N);
+        scanf(" %[^\n]s", query);
         if(N > 0){
             char *query_filtrado = removerAcento(query);
             // printf("%s\n",query_filtrado);
@@ -560,8 +560,8 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
         vetor_busca[i] = 0;
     
     quantidade_palavras = quantidade_palavra_em_string(query);
-    quantidade_palavras--;
-    // printf("qnt pala: %d\n",quantidade_palavras);
+    
+    printf("qnt pala: %d\n",quantidade_palavras);
     palavra_query = strtok(query, " "); 
 
     while(palavra_query != NULL){
@@ -601,9 +601,9 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
         B = modulo(vetor_busca, tamanho_vocabulario);
         if(A * B == 0){
             // printf("%d\n",j);
+        printf("%d\n",j);
             continue;
         }
-        printf("%lf\n",numerador);
         // printf("%lf\n",result);
         result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
         // printf("%lf\n", result);
@@ -611,14 +611,19 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             if(result == 0){
                 continue;
             }
+            
             adicionar_inicio_lista_res(resposta, result, elemento_indice_lista(titulo, j));
+            
             continue;
         }
-        
+        printf("%lf\t", result);
+        printf("%lf\t", resposta->tail->valor);
+        printf("%lf\n", result);
         if(resposta->tail->valor <= result){
             if(resposta->tamanho == N){
                 deletar_final_lista_res(resposta);
             }
+            printf("1\n\n\n");
             adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j), N);     //falta aqui verificar se funciona correto
         }
         // Lista *walysson = criar_lista();
@@ -659,12 +664,13 @@ Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavr
     newnode->valor = valor;
     newnode->palavra = malloc(strlen(palavra) + 1);
     strcpy(newnode->palavra, palavra);
+    
     return newnode;
 }
 
 void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavra){
     Node_resposta *newnode = criar_node_res(NULL,valor, palavra, NULL);
-        if (lista -> head == NULL){
+        if (lista -> tail == NULL){
             lista -> head = newnode;
             lista -> tail = newnode; 
         }
@@ -765,6 +771,9 @@ void filtro_maiusculo_para_minusculo(char *palavra){
 }
 
 void adicionar_lista_res_com_prioridade(Lista_resposta *lista, float valor, char *palavra, int N){
+    if(lista->tamanho == 0){
+        adicionar_inicio_lista_res(lista, valor, palavra);
+    }
     Node_resposta *aux = lista->head;
     int i = 0;
     while(aux != NULL){
