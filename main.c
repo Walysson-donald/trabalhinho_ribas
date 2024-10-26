@@ -191,11 +191,11 @@ int main(void) {
         printf("digite sua query: ");
         scanf("%d", &N);
         scanf("%[^\n]s", query);
-        
         if(N > 0){
             char *query_filtrado = removerAcento(query);
-            vetor_busca = calculo_vetor_busca(query_filtrado, IDF, tamanho_vocabulario, vocabulario_palavras);
+            // printf("%s\n",query_filtrado);
             printf("Para a busca: %s, Os N = %d artigos mais relevantes são:\n", query_filtrado, N);
+            vetor_busca = calculo_vetor_busca(query_filtrado, IDF, tamanho_vocabulario, vocabulario_palavras);
             similaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulos_artigos);
             free(query_filtrado);
         }
@@ -559,18 +559,15 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
     for(int i = 0; i < tamanho_vocabulario; i++)
         vetor_busca[i] = 0;
     
-    // Palavra *palavra = inicializar_palavra();
     quantidade_palavras = quantidade_palavra_em_string(query);
     quantidade_palavras--;
-    printf("qnt pala: %d\n",quantidade_palavras);
+    // printf("qnt pala: %d\n",quantidade_palavras);
     palavra_query = strtok(query, " "); 
 
-    // int j = 0;
     while(palavra_query != NULL){
         int i = buscar_palavra_lista(vocabulario, palavra_query);
         if(i != -1)
             vetor_busca[i]++;
-            // vetor_busca[i]++;
         palavra_query = strtok(NULL, " ");
     }
 
@@ -602,11 +599,16 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             continue;
         }
         result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
+        // printf("%lf\n", result);
+        
         if(resposta->tamanho == 0){
-            // printf("%d",j);
+            if(result == 0){
+                continue;
+            }
             adicionar_inicio_lista_res(resposta, result, elemento_indice_lista(titulo, j));
             continue;
         }
+        
         if(resposta->tail->valor <= result){
             if(resposta->tamanho == N){
                 deletar_final_lista_res(resposta);
