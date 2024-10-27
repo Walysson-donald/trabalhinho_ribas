@@ -1,4 +1,11 @@
 /*
+    Pesquisa por TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos), realizado por uma query.
+    Codado usando VSCode, github. Feito por:
+    Raphael José Pimenta Martins
+    Walysson Cietto Biçoli de Carvalho
+    Trabalho 1 curso ATP II, prof Lucas Ribas
+
+
     nosso trabalho ta tipo:
     https://youtube.com/shorts/lp4_rxJPJGQ?si=hK6MqEl4kswFJ5PQ
 */
@@ -57,7 +64,7 @@ Lista_resposta *criar_lista_res();
 Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavra, Node_resposta *proximo); 
 
 //  note que se indice == 0, implica que palavra deve vir anterior do lista->head,
-//  se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
+//  se indice == 1, implica que palavra deve ir entre lista->head e o proximo.
 void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra, int indice);
 
 void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavra);
@@ -68,7 +75,7 @@ void deletar_final_lista_res(Lista_resposta *lista);
 
 void deletar_lista_res(Lista_resposta *lista);
 
-//  dado um int ind e lista, fc busca o ind-ésimo+1 elemento da lista, 0 é o primeiro da lista, retorta o char *palavra
+//  dado um int ind e lista, fc busca o ind-ésimo elemento da lista, 0 é o primeiro da lista, retorna o char *palavra
 char *elemento_indice_lista_res(Lista_resposta *lista, int ind);
 
 void printa_lista_res(Lista_resposta *lista);
@@ -163,16 +170,27 @@ int buscar_palavra_lista(Lista *vocabulario, char *palavra_query);
 int main(void) {
 
     setlocale(LC_ALL, "Portuguese");
-    
     //  declaracao das variaveis
     int quantidade_artigo = quantidade_artigo_calculo();
     float **TF, *IDF;
     FILE *vocabulario;
     char query[MAXIMO_TAMANHO_QUERY];
     double **matriz_TFIDF;
-    int tamanho_vocabulario, N;
+    int tamanho_vocabulario, N, continuar = 0;
     Lista *vocabulario_palavras, *titulos_artigos;
 
+    
+    printf("\n\nPesquisa por TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos), realizado por uma query.\n");
+    printf("Codado usando VSCode, github. Feito por:\n");
+    printf("Raphael José Pimenta Martins\n");
+    printf("Walysson Cietto Biçoli de Carvalho\n");
+    printf("Trabalho 1 curso ATP II, prof Lucas Ribas\n\n");
+
+    do{
+        printf("Digite 1 para calcular matriz TFIDF\n");
+        scanf(" %d",&continuar);
+    } while(continuar != 1);
+    
     vocabulario = fopen("dados/vocabulary.txt", "r");
     tamanho_vocabulario = quantidade_palavras(vocabulario);
     vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); //   todas as palavras do vocabulario armazenado nessa lista
@@ -520,7 +538,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 
     while (nodeaux != NULL) { //  calcula para todos os elementos do vocabulario
         // utilizado para debug:
-        // printf("palavra: %s na posicao:\t\t %d ... calculando\n",nodeaux->palavra, i); 
+        printf("palavra do vocabulario: %s, na posicao:\t\t %d ... calculando tfidf\n",nodeaux->palavra, i); 
 
         int qnt_artigos_aparece = 0;//  quantos artigos que a palavra, de um certo node do vocabulario, aparece 
         int M = strlen(nodeaux->palavra);//  tamanho da palavra do vocabulario
