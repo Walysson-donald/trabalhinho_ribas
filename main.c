@@ -1,6 +1,6 @@
 /*
     nosso trabalho ta tipo:
-    https://www.youtube.com/watch?v=p2PgMuYptws
+    https://youtube.com/shorts/lp4_rxJPJGQ?si=hK6MqEl4kswFJ5PQ
 */
 
 #include <stdlib.h>
@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <math.h>
-#include <ctype.h> //    necessario para filtra caractere especial
+#include <ctype.h> //    necessario para filtrar caractere especial
 
 #define MAXIMA_QUANTIDADE_ALGARISMOS_ARTIGO 3
 #define MAXIMO_TAMANHO_PALAVRA 200
@@ -51,7 +51,6 @@ typedef struct Texto{
 }Texto;
 
 //  funçoes basicas da lista resposta
-Lista *criar_lista();
 
 Lista_resposta *criar_lista_res();
 
@@ -81,6 +80,8 @@ void adicionar_lista_res_com_prioridade(Lista_resposta *lista, double valor, cha
 // funcoes basica para lista de char*
 Node *criar_node(Node *anterior, char *palavra, Node *proximo); 
 
+Lista *criar_lista();
+
 //   note que se indice == 0, implica que palavra deve vir anterior do lista->head,
 //   se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
 void adicionar_meio_lista(Lista *lista, char *palavra, int indice);
@@ -96,14 +97,13 @@ void printa_lista(Lista *lista);    // usada para debug
 void deletar_lista(Lista *lista);
 
 int deletar_final_lista(Lista *lista);
-
 // fim das funcoes basica para lista de char*
 
 void deletar_texto(Texto *texto);
 
-void lps_calculo(int lps[], char *P, int M);//  encontra o lps de qualquer palavra  
+void lps_calculo(int lps[], char *P, int M);//  encontra o lps da str P
 
-int kmp_calculo_com_erros(int lps[],char *P,char *T,int M); //  função que calcula o kmp com erros
+int kmp_calculo_com_erros(int lps[],char *P,char *T,int M); //  função que calcula o kmp com até 1 erro
 
 //   funçao que retorna um FILE* com o arrtigo i que queremos, primeiro artigo é o 1, entao contagem requer comecar pelo 1.
 FILE *abrir_artigo(int numero);
@@ -153,7 +153,7 @@ Lista *recolher_titulos_artigos_para_lista();
 // //  armazena a matriz em um arquivo binario
 // void matriz_binario(float **matrix, int linhas, int colunas);                       //  talvez deletar essa funcao, nao util
 
-//  retorna a qnt de palavras em uma str passada como parametro
+//  retorna a qnt de palavras em uma str passada como parametro, *conta qnt de espaços na str + 1*
 int quantidade_palavra_em_string(char *str);
 
 //  verifica se a palavra na query se encontra no vocabulario e retorna o indice do mesmo
@@ -926,7 +926,6 @@ int quantidade_palavra_em_string(char *str){
     return qnt;
 }
 
-//  printa os elemetos da lista resposta
 void printa_lista_res(Lista_resposta *lista){
     if(lista->tamanho == 0){
         printf("lista vazia\n");
