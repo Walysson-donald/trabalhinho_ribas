@@ -4,14 +4,14 @@
       "name": "C/C++: gcc.exe build and debug active file",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+      "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
-    "miDebuggerPath": "c:\\MinGW\\bin\\gdb.exe",
+    "miDebuggerPath": "c:/MinGW/bin/gdb.exe",
     "setupCommands": [
     {
       "description": "Enable pretty-printing for gdb",
