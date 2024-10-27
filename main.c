@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <locale.h>
 #include <math.h>
-#include <ctype.h> // necessario para filtra caractere especial
+#include <ctype.h> //    necessario para filtra caractere especial
 
 #define MAXIMA_QUANTIDADE_ALGARISMOS_ARTIGO 3
 #define MAXIMO_TAMANHO_PALAVRA 200
@@ -30,8 +30,8 @@ typedef struct{
     int tamanho;
     Node_resposta *head;
     Node_resposta *tail;
-}Lista_resposta;
-
+}Lista_resposta;            
+//  uma lista composta com noded de char*(str) e um double associados, útil para organizar a resposta no final
 
 typedef struct{
     int tamanho;
@@ -39,21 +39,21 @@ typedef struct{
     Node *tail; 
 }Lista;
 
-//usado para armazenar o conteudo de cada texto e seu tamanho
+//  usado para armazenar o conteudo de cada texto(artigo) e seu tamanho
 typedef struct Texto{
     char *text;
     int tamanho;
 }Texto;
 
-void filtro_maiusculo_para_minusculo(char *palavra); //filtro que garante o funcionamento do codigo convertendo as letras para minusculo
-
-//funçoes basicas de lista
+//  funçoes basicas da lista resposta
 Lista *criar_lista();
 
 Lista_resposta *criar_lista_res();
 
 Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavra, Node_resposta *proximo); 
 
+//  note que se indice == 0, implica que palavra deve vir anterior do lista->head,
+//  se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
 void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra, int indice);
 
 void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavra);
@@ -62,24 +62,26 @@ void adicionar_final_lista_res(Lista_resposta *lista, float valor, char *palavra
 
 void deletar_lista_res(Lista_resposta *lista);
 
+//  dado um int ind e lista, fc busca o ind-ésimo+1 elemento da lista, 0 é o primeiro da lista, retorta o char *palavra
 char *elemento_indice_lista_res(Lista_resposta *lista, int ind);
 
 void printa_lista_res(Lista_resposta *lista);
+//  fim das funçoes basicas da lista resposta
 
-//observ que ao chamar essa função, deve ser passado quem é o anterior e o proximo do node a ser add
+
 Node *criar_node(Node *anterior, char *palavra, Node *proximo); 
 
-//    note que se indice == 0, implica que palavra deve vir anterior do lista->head,
-//    se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
+//   note que se indice == 0, implica que palavra deve vir anterior do lista->head,
+//   se indicde == 1, implica que palavra deve ir entre lista->head e o proximo.
 void adicionar_meio_lista(Lista *lista, char *palavra, int indice);
 
-void adicionar_inicio_lista(Lista *lista, char *palavra);    //vou deixar pra vc add rafa
+void adicionar_inicio_lista(Lista *lista, char *palavra);    
 
-void adicionar_final_lista(Lista *lista, char *palavra);     //vou deixar pra vc add rafa
+void adicionar_final_lista(Lista *lista, char *palavra);     
 
 char *elemento_indice_lista(Lista *lista, int ind);
 
-void printa_lista(Lista *lista);//funçao que exibe uma lista
+void printa_lista(Lista *lista); 
 
 void deletar_lista(Lista *lista);
 
@@ -91,58 +93,62 @@ void adicionar_lista_res_com_prioridade(Lista_resposta *lista, double valor, cha
 
 void deletar_texto(Texto *texto);
 
-void lps_calculo(int lps[], char *P, int M);//encontra o lps de qualquer palavra  
+void lps_calculo(int lps[], char *P, int M);//  encontra o lps de qualquer palavra  
 
-int kmp_calculo_com_erros(int lps[],char *P,char *T,int M); //função que calcula o kmp com erros
+int kmp_calculo_com_erros(int lps[],char *P,char *T,int M); //  função que calcula o kmp com erros
 
-// funçao que retorna um FILE* com o texto i que queremos
+//   funçao que retorna um FILE* com o texto i que queremos
 FILE *abrir_artigo(int numero);
 
-// quantidade de palavras que tem em um arquivo
+//   quantidade de palavras que tem em um arquivo
 int quantidade_palavras(FILE *arquivo);
 
-// retorna quantidade de artigos 
+//   retorna quantidade de artigos 
 int quantidade_artigo_calculo();
 
-float TFIDF_calculo(float fc_TF,float IDF);
 
-// passa um File* do artigo e retorna uma Lista * contendo todas as palavras do artigo
+//   passa um File* do artigo e retorna uma Lista * contendo todas as palavras do artigo
 Texto *ler_artigo(FILE *artigo);
 
-//funçoes para calculo do TFIDF
+//  funçoes para calculo do TFIDF
 float fc_TF(float frequencia,float tamanho);
 
 float fc_IDF(float num_docs_palavra_aparece,float num_doc_total);
 
+double TFIDF_calculo(float fc_TF,float IDF);
+
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario);
 
-//calcula o vetor de busca que sera usado na query para encontrar a similaridade
+//  calcula o vetor de busca que sera usado na query para encontrar a similaridade
 double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Lista *vocabulario);
 
-int verifica_caso_usuario_queira_recalcular_TFIDF();
+int verifica_caso_usuario_queira_recalcular_TFIDF();                       //   talvez deletar essa funcao, nao util
 
-//realiza a comparação entre o vetor de busca e o vocabulario em cada documento
+//  realiza a comparação entre o vetor de busca e o vocabulario em cada documento
 void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo);
 
-//funçao usada para garantir melhor funcionamento do codigo removendo acentos
-char* removerAcento(char* str) ;
+// altera a str recebida para ter todas letras minusculas
+void filtro_maiusculo_para_minusculo(char *palavra); 
 
-//calculo do modulo que é utilizado no calculo da similaridade
+//  funçao usada para garantir melhor funcionamento do codigo removendo acentos
+char* removerAcento(char* str);
+
+//  calculo do modulo que é utilizado no calculo da similaridade
 double modulo(double *vetor,int tamanho_vocabulario);
 
-//armazena um arquivo em uma lista
+//  armazena um arquivo em uma lista
 Lista *leitura_arquivo_para_lista(FILE* arquivo);
 
-//retorna uma lista com os titulos a serem retornados ao fim do calculo de similiaridade e comparações
+//  retorna uma lista com os titulos a serem retornados ao fim do calculo de similiaridade e comparações
 Lista *recolher_titulos_artigos_para_lista();
 
-//armazena a matriz em um arquivo binario
-void matriz_binario(float **matrix, int linhas, int colunas);
+//  armazena a matriz em um arquivo binario
+void matriz_binario(float **matrix, int linhas, int colunas);                       //  talvez deletar essa funcao, nao util
 
-//
+//  retorna a qnt de palavras em uma str passada como parametro
 int quantidade_palavra_em_string(char *str);
 
-//verifica se a palavra na query se encontra no vocabulario
+//  verifica se a palavra na query se encontra no vocabulario e retorna o indice do mesmo
 int buscar_palavra_lista(Lista *vocabulario, char *palavra_query);
 
 
@@ -150,8 +156,8 @@ int main(void) {
 
     setlocale(LC_ALL, "Portuguese");
     
-    //declaracao das variaveis
-    int quantidade_artigo = quantidade_artigo_calculo(); //calculo da quantidade de artigos
+    //  declaracao das variaveis
+    int quantidade_artigo = quantidade_artigo_calculo();
     float **TF, *IDF;
     FILE *vocabulario;
     char query[MAXIMO_TAMANHO_QUERY];
@@ -159,16 +165,16 @@ int main(void) {
     int tamanho_vocabulario, N;
     Lista *vocabulario_palavras, *titulos_artigos;
 
-    vocabulario = fopen("dados/vocabulary.txt", "r");//abre o vocabulario
+    vocabulario = fopen("dados/vocabulary.txt", "r");// abre o vocabulario
     tamanho_vocabulario = quantidade_palavras(vocabulario);
-    vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); // todas as palavras do vocabulario armazenado nessa lista
+    vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); //   todas as palavras do vocabulario armazenado nessa lista
     fclose(vocabulario);
 
-    titulos_artigos = recolher_titulos_artigos_para_lista();//titulos a serem retornados no fim dos calculos de similaridade e comparaçoes
+    titulos_artigos = recolher_titulos_artigos_para_lista();//  titulos a serem retornados no fim dos calculos de similaridade e comparaçoes
     
 
 
-    // basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo
+    //   basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo
     matriz_TFIDF = malloc(sizeof(double*) * tamanho_vocabulario);
     TF = malloc(sizeof(float*) * tamanho_vocabulario);
     IDF = malloc(sizeof(float) * quantidade_artigo); 
@@ -178,25 +184,25 @@ int main(void) {
         TF[i] = malloc(sizeof(float) * quantidade_artigo);
     }
 
-    //calcula a matriz TFIDF
+    //  calcula a matriz TFIDF
     fc_matriz_TFIDF(TF, IDF, tamanho_vocabulario, quantidade_artigo, matriz_TFIDF, vocabulario_palavras);
 
     do{
         double *vetor_busca;
-        printf("(digite 0 para encerrar o programa)\n");//caso nao deseje utilizar mais o programa
+        printf("(digite 0 para encerrar o programa)\n");//  caso nao deseje utilizar mais o programa
         printf("digite sua query: ");
-        scanf(" %d", &N);//numero de artigos a serem retornados
-        scanf(" %[^\n]s", query);//query digitada pelo usuario
+        scanf(" %d", &N);// numero de artigos a serem retornados
+        scanf(" %[^\n]s", query);// query digitada pelo usuario
         if(N > 0){
-            char *query_filtrado = removerAcento(query);//filtra a query para melhor funcionamento
+            char *query_filtrado = removerAcento(query);//  filtra a query para melhor funcionamento
             printf("Para a busca: %s, Os N = %d artigos mais relevantes são:\n", query_filtrado, N);
-            vetor_busca = calculo_vetor_busca(query_filtrado, IDF, tamanho_vocabulario, vocabulario_palavras);//calcula o vetor busca relatiovo a query digitada
-            similaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulos_artigos);//calcula a similiaridade
+            vetor_busca = calculo_vetor_busca(query_filtrado, IDF, tamanho_vocabulario, vocabulario_palavras);//    calcula o vetor busca relatiovo a query digitada
+            similaridade(N, quantidade_artigo, vetor_busca, matriz_TFIDF, tamanho_vocabulario, titulos_artigos);//  calcula a similiaridade e printa ao final da funcao
             free(query_filtrado);
         }
-    }while(N > 0);//garante que o codigo funcione enquanto nao se digitar 0 para a quantia de artigos a serem retornados
+    }while(N > 0);//    garante que o codigo funcione enquanto nao se digitar 0 para a quantia de artigos a serem retornados
     
-    //liberaçao das memorias alocadas dinamicamente
+    //  liberaçao das memorias alocadas dinamicamente
     for(int i=0; i < tamanho_vocabulario; i++){
         free(matriz_TFIDF[i]);
         free(TF[i]);
@@ -212,7 +218,7 @@ int main(void) {
 
 } 
 
-//funçoes basicas para uma lista
+//  funçoes basicas para uma lista
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
     lista->head = NULL;
@@ -250,20 +256,19 @@ void adicionar_meio_lista(Lista *lista, char *palavra, int indice){
         adicionar_inicio_lista(lista, palavra);
         return;
     }
-    //caso seja adicionado no ultimo Node
     if(indice <= 0){
         adicionar_final_lista(lista, palavra);
         return;
     }
     Node *auxiliar = lista->head;
-    for(int i = 0; i < indice-1; i++){      //chegamos até o node anterior     
-        auxiliar = auxiliar->proximo;       //que o auxiliar vai estar 
+    for(int i = 0; i < indice-1; i++){      //  chegamos até o node anterior onde será adicionado o novonode
+        auxiliar = auxiliar->proximo;       
     }
     Node *novonode = criar_node(auxiliar, palavra, auxiliar->proximo);
     auxiliar->proximo->anterior = novonode;
     auxiliar->proximo = novonode; 
     lista->tamanho++;
-    //nao precisa lidar com tail e head
+    //  nao precisa lidar com tail e head
 }
 
 void adicionar_final_lista(Lista *lista, char *palavra){
@@ -309,8 +314,8 @@ int deletar_final_lista(Lista *lista){
 }
 
 void lps_calculo(int lps[],char *P,int M){
-    // P = Padrao
-    // M = tamanho de P
+    //   P = Padrao
+    //   M = tamanho de P
     int i=1,len=0;
     lps[0] = 0;
 
@@ -333,10 +338,10 @@ void lps_calculo(int lps[],char *P,int M){
 }
 
 int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
-    // T = Texto
-    // P = Padrao
-    // M = tamanho de T
-    // N = tamanho de P
+    //   T = Texto
+    //   P = Padrao
+    //   M = tamanho de T
+    //   N = tamanho de P
     int N = strlen(T);
     int i = 0, j = 0;
     int quantidade_palavras_iguais = 0;
@@ -371,7 +376,7 @@ int kmp_calculo_com_erros(int lps[], char *P, char *T, int M) {
             erros = 0; 
         }
     }
-    return quantidade_palavras_iguais;//retorna a frequencia da ocorrrencia de cada palavra
+    return quantidade_palavras_iguais;//    retorna a frequencia da ocorrrencia de cada palavra
 }
 
 
@@ -389,7 +394,7 @@ int quantidade_artigo_calculo(){
             continuar = 0;
         }
     }while(i<5);
-    return i - 1; // -1 pois ele comeca com i = 1
+    return i - 1; //     -1 pois ele comeca com i = 1
 }
 
 FILE *abrir_artigo(int numero){
@@ -399,7 +404,7 @@ FILE *abrir_artigo(int numero){
     strcat(strcat(caminho_artigo, numero_string), ".txt");
     artigo = fopen(caminho_artigo, "r");
 
-    return artigo;//retorna um artigo aberto
+    return artigo;//    retorna um artigo aberto
 }
 
 
@@ -416,9 +421,9 @@ Texto* ler_artigo(FILE *artigo) {
         return NULL;
     }
     while((fscanf(artigo, " %s", palavra) != EOF)){
-        texto->tamanho++;//para saber o tamanho de cada texto
+        texto->tamanho++;// para saber o tamanho de cada texto
 
-        // filtro deve retornar um char* alocado dinamicamente
+        //   filtro deve retornar um char* alocado dinamicamente
         char *palavra_filtrada = removerAcento(palavra);
         filtro_maiusculo_para_minusculo(palavra_filtrada);
 
@@ -436,7 +441,7 @@ Texto* ler_artigo(FILE *artigo) {
     return texto;
 }
 
-//retorna cada elemento da lista printados
+//  retorna cada elemento da lista printados
 void printa_lista(Lista *lista){
     if(lista->tamanho == 0){
         printf("lista vazia\n");
@@ -452,7 +457,7 @@ void printa_lista(Lista *lista){
 }
 
 
-//funcoes para o calculo do TFIDF
+//  funcoes para o calculo do TFIDF
 float fc_TF(float frequencia,float tamanho ){
     return frequencia/tamanho;
 }
@@ -461,7 +466,7 @@ float fc_IDF(float num_docs_palavra_aparece,float num_doc_total){
     return log10(num_doc_total/(num_docs_palavra_aparece+1));
 }
 
-float TFIDF_calculo(float TF,float IDF){
+double TFIDF_calculo(float TF,float IDF){
 
     return (TF*IDF);
 }
@@ -478,11 +483,11 @@ int quantidade_palavras(FILE *arquivo) {
     int qnt_palavras = 0;
     char palavra[MAXIMO_TAMANHO_PALAVRA];
 
-    while(fscanf(arquivo, "%s", palavra) != EOF){//percorre o arquivo ate o final contabilizando cada palavra
+    while(fscanf(arquivo, "%s", palavra) != EOF){// percorre o arquivo ate o final contabilizando cada palavra
         qnt_palavras++;
     }
 
-    return qnt_palavras;//retorna a quantidade de palavaras em cada arquivo
+    return qnt_palavras;//  retorna a quantidade de palavaras em cada arquivo
 }
 
 int verifica_caso_usuario_queira_recalcular_TFIDF(){
@@ -502,13 +507,13 @@ int verifica_caso_usuario_queira_recalcular_TFIDF(){
 
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario){
     FILE *art;
-    Texto *T;//armazena temporariamente cada artigo e quantidade de vezes que aparece
-    Node *nodeaux = vocabulario->head;//variavel auxiliar para percorrer o vocabulario
+    Texto *T;// armazena temporariamente cada artigo e quantidade de vezes que aparece
+    Node *nodeaux = vocabulario->head;//    variavel auxiliar para percorrer o vocabulario
     int i = 0;
 
-    while (nodeaux != NULL) { //calcula para todos os elementos do vocabulario
-        int qnt_artigos_aparece = 0;//quantos artigos a palavra aparece 
-        int M = strlen(nodeaux->palavra);//tamanho da palavra do vocabulario
+    while (nodeaux != NULL) { //    calcula para todos os elementos do vocabulario
+        int qnt_artigos_aparece = 0;//  quantos artigos a palavra aparece 
+        int M = strlen(nodeaux->palavra);// tamanho da palavra do vocabulario
         int lps[M];
         lps_calculo(lps, nodeaux->palavra, M);
         
@@ -519,28 +524,28 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             T = ler_artigo(art);
             if(T == NULL)
                 break;
-            int frequencia = kmp_calculo_com_erros(lps, nodeaux->palavra, T -> text, M);//quantas vezes a palavra aparece no texto
-            float tf = fc_TF((float)frequencia,(float) T -> tamanho);//frequencia que aparece em relaçao as outras palavras
+            int frequencia = kmp_calculo_com_erros(lps, nodeaux->palavra, T -> text, M);//  quantas vezes a palavra aparece no texto
+            float tf = fc_TF((float)frequencia,(float) T -> tamanho);// frequencia que aparece em relaçao as outras palavras
 
             if (tf != 0){
-                qnt_artigos_aparece++;//contagem de quantos artigos aparece
+                qnt_artigos_aparece++;//    contagem de quantos artigos aparece
             }
             TF[i][j-1] = tf;
             if(T != NULL)
-                deletar_texto(T);//deleta o texto criado para armazenar temporariamente o artigo
+                deletar_texto(T);// deleta o texto criado para armazenar temporariamente o artigo
             if(art != NULL)
                 fclose(art);
         }
 
-        IDF[i] = fc_IDF((float)qnt_artigos_aparece, (float)quantidade_artigo);//verifica a importancia de palavras com base em quantas vezes ela aparece em todos os artigos
+        IDF[i] = fc_IDF((float)qnt_artigos_aparece, (float)quantidade_artigo);//    verifica a importancia de palavras com base em quantas vezes ela aparece em todos os artigos
         i++;
-        nodeaux = nodeaux->proximo;//passa para o proximo termo do vocabulario
+        nodeaux = nodeaux->proximo;//   passa para o proximo termo do vocabulario
         printf("\ni: %d\n", i);
     }
 
     for(int i = 0; i < tamanho_vocabulario; i++){
         for(int j = 0; j < quantidade_artigo; j++){ 
-            matriz_TFIDF[i][j] = TFIDF_calculo(TF[i][j], IDF[i]);   //observe: coluna *matriz_TFIDF + j, ou matriz_TFIDF[0] + j, sao os tfidf de todas palavras do vocabulario (em ordem do arquivo vocab..) do artigo j
+            matriz_TFIDF[i][j] = TFIDF_calculo(TF[i][j], IDF[i]);   //  observe: coluna *matriz_TFIDF + j, ou matriz_TFIDF[0] + j, sao os tfidf de todas palavras do vocabulario (em ordem do arquivo vocab..) do artigo j
         }                                                        
     }
 }   
@@ -557,7 +562,7 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
     palavra_query = strtok(query, " "); 
 
     while(palavra_query != NULL){
-        i = buscar_palavra_lista(vocabulario, palavra_query);//procura a palavra da query no vocabulario e retorna o indice em que ela aparece
+        i = buscar_palavra_lista(vocabulario, palavra_query);// procura a palavra da query no vocabulario e retorna o indice em que ela aparece
         if(i != -1)
             vetor_busca[i]++;
         palavra_query = strtok(NULL, " ");
@@ -565,8 +570,8 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
 
     for(i = 0; i < tamanho_vocabulario; i++){
         if(vetor_busca[i] != 0){
-            vetor_busca[i] /= (double)quantidade_palavras;  //completacao do TF, seu denominador
-            vetor_busca[i] *= (double)IDF[i];               //multiplicando pelo IDF, agora temos o TFIDF do vetor busca na posicao i
+            vetor_busca[i] /= (double)quantidade_palavras;  //  completacao do TF, seu denominador
+            vetor_busca[i] *= (double)IDF[i];               //  multiplicando pelo IDF, agora temos o TFIDF do vetor busca na posicao i
         }
         printf("%lf\n",vetor_busca[i]);
     }
@@ -577,18 +582,18 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
 
 void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo){
 
-    Lista_resposta *resposta = criar_lista_res();       //embora é chamado lista se comporta como uma fila com insercao priorirataria 
+    Lista_resposta *resposta = criar_lista_res();       //  embora é chamado lista se comporta como uma fila com insercao priorirataria 
     
     for(int j = 0; j < quantidade_artigo; j++){
         
         double numerador=0, A = 0, B, result;
-        //encontra o numerador do calculo de similaridade(produto interno entre vetor de busca e cada coluna da matriz TFIDF)
+        //  encontra o numerador do calculo de similaridade(produto interno entre vetor de busca e cada coluna da matriz TFIDF)
         for(int i=0; i < tamanho_vocabulario; i++){
             printf("%lf, %lf\n",vetor_busca[i], matriz_TFIDF[i][j]);
             numerador += vetor_busca[i] * matriz_TFIDF[i][j];
         }
 
-        //modulo de cada vetor para encontrar o denominador
+        //  modulo de cada vetor para encontrar o denominador
         for(int i = 0; i < tamanho_vocabulario; i++){
             A += powf(matriz_TFIDF[i][j],2);
         }
@@ -599,9 +604,9 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             continue;
         }
         
-        result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
+        result = numerador/(A * B);        //    result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
 
-        if(resposta->tamanho == 0){//se lista de resposta estiver vazia
+        if(resposta->tamanho == 0){//   se lista de resposta estiver vazia
             if(result == 0){
                 continue;
             }
@@ -681,14 +686,14 @@ void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra,
         return;
     }
     Node_resposta *auxiliar = lista->head;
-    for(int i = 0; i < indice-1; i++){      //chegamos até o node anterior     
-        auxiliar = auxiliar->proximo;       //que o auxiliar vai estar 
+    for(int i = 0; i < indice-1; i++){      //  chegamos até o node anterior     
+        auxiliar = auxiliar->proximo;       //  que o auxiliar vai estar 
     }
     Node_resposta *novonode = criar_node_res(auxiliar, valor, palavra, auxiliar->proximo);
     auxiliar->proximo->anterior = novonode;
     auxiliar->proximo = novonode; 
     lista->tamanho++;
-    //nao precisa lidar com tail e head
+    //  nao precisa lidar com tail e head
 }
 
 
@@ -719,7 +724,7 @@ void deletar_lista_res(Lista_resposta *lista){
     free(lista);
 }
 
-char *elemento_indice_lista_res(Lista_resposta *lista, int ind){ //ind == indice
+char *elemento_indice_lista_res(Lista_resposta *lista, int ind){ // ind == indice
     if(ind < 0){
         printf("indice nao pode ser <0, alterando para 0\n");
         ind = 0;
@@ -735,7 +740,7 @@ char *elemento_indice_lista_res(Lista_resposta *lista, int ind){ //ind == indice
     return aux->palavra;
 }
 
-char *elemento_indice_lista(Lista *lista, int ind){ //ind == indice
+char *elemento_indice_lista(Lista *lista, int ind){ //  ind == indice
     if(ind < 0){
         printf("indice nao pode ser <0, alterando para 0\n");
         ind = 0;
@@ -751,7 +756,7 @@ char *elemento_indice_lista(Lista *lista, int ind){ //ind == indice
     return aux->palavra;
 }
 
-//para garantir melhor funcionamento
+//  para garantir melhor funcionamento
 void filtro_maiusculo_para_minusculo(char *palavra){
     for(int i = 0; palavra[i] != '\0'; i++){
         if(isupper(palavra[i])){
@@ -799,7 +804,7 @@ void deletar_final_lista_res(Lista_resposta *lista){
     lista->tamanho--;
 }
 
-//recebe a palavra e verifica se há acentuação, se houver remove e retorna a palavra sem os acentos
+//  recebe a palavra e verifica se há acentuação, se houver remove e retorna a palavra sem os acentos
 char* removerAcento(char* str) {
     char* com_acento[] = {
         "á", "à", "â", "ã", "ä", "é", "è", "ê", "ë", "í", "ì", "î", "ï",
@@ -849,7 +854,7 @@ Lista *leitura_arquivo_para_lista(FILE* arquivo){
     return lista;
 }
 
-//retorna lista com os N titulos mais relevantes
+//  retorna lista com os N titulos mais relevantes
 Lista *recolher_titulos_artigos_para_lista(){
     char titulo_palavra[MAXIMA_QUANTIDADE_TAMANHO_TITULO + 1];
     FILE *artigo;
@@ -868,7 +873,7 @@ Lista *recolher_titulos_artigos_para_lista(){
     return titulos;
 }
 
-//verifica se a palavra da query existe no vocabulario e retorna seu indice na lista caso exista
+//  verifica se a palavra da query existe no vocabulario e retorna seu indice na lista caso exista
 int buscar_palavra_lista(Lista *vocabulario, char *palavra_query){
     if(vocabulario == NULL){
         printf("vocabulario lista é nula, erro\n");
@@ -905,7 +910,7 @@ int quantidade_palavra_em_string(char *str){
     return qnt;
 }
 
-//printa os elemetos da lista resposta
+//  printa os elemetos da lista resposta
 void printa_lista_res(Lista_resposta *lista){
     if(lista->tamanho == 0){
         printf("lista vazia\n");
