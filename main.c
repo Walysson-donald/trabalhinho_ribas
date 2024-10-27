@@ -610,7 +610,7 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             continue;
         }
         
-        printf("%lf\n", numerador);
+        // printf("%lf\n", numerador);
         result = numerador/(A * B);        // result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
 
         if(resposta->tamanho == 0){
