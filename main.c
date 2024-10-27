@@ -1,3 +1,8 @@
+/*
+    nosso trabalho ta tipo:
+    https://www.youtube.com/watch?v=p2PgMuYptws
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -125,7 +130,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 //  calcula o vetor de busca que sera usado na query para encontrar a similaridade
 double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Lista *vocabulario);
 
-int verifica_caso_usuario_queira_recalcular_TFIDF();                       //   talvez deletar essa funcao, nao util
+// int verifica_caso_usuario_queira_recalcular_TFIDF();                       //   talvez deletar essa funcao, nao util
 
 //  realiza a comparação entre o vetor de busca e o vocabulario em cada documento
 void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo);
@@ -133,7 +138,7 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
 // altera a str recebida para ter todas letras minusculas
 void filtro_maiusculo_para_minusculo(char *palavra); 
 
-//  funçao usada para garantir melhor funcionamento do codigo removendo acentos
+//  recebe uma str e verifica se há acentuação, se houver remove e retorna um ponteiro dinamicamento alocado sem os acentos
 char* removerAcento(char* str);
 
 //  calculo do modulo que é utilizado no calculo da similaridade
@@ -168,14 +173,12 @@ int main(void) {
     int tamanho_vocabulario, N;
     Lista *vocabulario_palavras, *titulos_artigos;
 
-    vocabulario = fopen("dados/vocabulary.txt", "r");// abre o vocabulario
+    vocabulario = fopen("dados/vocabulary.txt", "r");
     tamanho_vocabulario = quantidade_palavras(vocabulario);
     vocabulario_palavras = leitura_arquivo_para_lista(vocabulario); //   todas as palavras do vocabulario armazenado nessa lista
     fclose(vocabulario);
 
     titulos_artigos = recolher_titulos_artigos_para_lista();//  titulos a serem retornados no fim dos calculos de similaridade e comparaçoes
-    
-
 
     //   basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo
     matriz_TFIDF = malloc(sizeof(double*) * tamanho_vocabulario);
@@ -427,6 +430,8 @@ Texto* ler_artigo(FILE *artigo) {
         texto->tamanho++;// para saber a qnt de palavra de cada texto
 
         char *palavra_filtrada = removerAcento(palavra);
+        if(palavra_filtrada == NULL)
+            continue;
         filtro_maiusculo_para_minusculo(palavra_filtrada);
 
         tamanho_total += strlen(palavra_filtrada) + 1; 
@@ -438,8 +443,8 @@ Texto* ler_artigo(FILE *artigo) {
             strcat(texto->text, " ");   
             strcat(texto->text, palavra_filtrada);
         }
-        if(palavra_filtrada != NULL)
-            free(palavra_filtrada); // na linha "char *palavra_filtrada = removerAcento(palavra);", removerAcento(palavra) aloca um char dinamico
+        
+        free(palavra_filtrada); // na linha "char *palavra_filtrada = removerAcento(palavra);", removerAcento(palavra) aloca um char dinamico
     }
     return texto;
 }
@@ -509,11 +514,14 @@ int verifica_caso_usuario_queira_recalcular_TFIDF(){
 
 void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario){
     FILE *art;
-    Texto *T;// armazena temporariamente cada artigo e quantidade de vezes que aparece
-    Node *nodeaux = vocabulario->head;//    variavel auxiliar para percorrer o vocabulario
+    Texto *T; // armazena temporariamente cada artigo e quantidade de vezes que aparece
+    Node *nodeaux = vocabulario->head; //    variavel auxiliar para percorrer o vocabulario
     int i = 0;
 
     while (nodeaux != NULL) { //  calcula para todos os elementos do vocabulario
+        // utilizado para debug:
+        // printf("palavra: %s na posicao:\t\t %d ... calculando\n",nodeaux->palavra, i); 
+
         int qnt_artigos_aparece = 0;//  quantos artigos que a palavra, de um certo node do vocabulario, aparece 
         int M = strlen(nodeaux->palavra);//  tamanho da palavra do vocabulario
         int lps[M];
@@ -569,8 +577,8 @@ double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Li
     while(palavra_query != NULL){
         i = buscar_palavra_lista(vocabulario, palavra_query);// procura a palavra da query no vocabulario e retorna o indice em que ela aparece
         if(i != -1)
-            vetor_busca[i]++;
-        palavra_query = strtok(NULL, " ");
+            vetor_busca[i]++;   // frequencia +1 da palavra_query na mesmo posicao do vocabulario 
+        palavra_query = strtok(NULL, " ");  // busca proxima palavra
     }
 
     for(i = 0; i < tamanho_vocabulario; i++){
@@ -591,7 +599,7 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
     for(int j = 0; j < quantidade_artigo; j++){
         
         double numerador=0, A = 0, B, result;
-        //  encontra o numerador do calculo de similaridade(produto interno entre vetor de busca e cada coluna da matriz TFIDF)
+        //  calcula o numerador da similaridade(produto interno entre vetor de busca e cada coluna da matriz TFIDF)
         for(int i=0; i < tamanho_vocabulario; i++){
             numerador += vetor_busca[i] * matriz_TFIDF[i][j];
         }
@@ -600,16 +608,17 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
         for(int i = 0; i < tamanho_vocabulario; i++){
             A += powf(matriz_TFIDF[i][j],2);
         }
-        A = sqrtf(A);
+        A = sqrtf(A);// fim do calculo modulo de A (matriz tfidf do artigo j)
+
         B = modulo(vetor_busca, tamanho_vocabulario);
 
         if(A * B == 0){
-            continue;
+            continue;// caso A * B == 0, nao podemos dividir o numerador por A * B, por isso, prossegue para o proximo artigo
         }
         
-        result = numerador/(A * B);        //    result é o valor de similaridade entre vetor busca com coluna j do tfidf (documento j)
+        result = numerador/(A * B);//  result é o valor de similaridade entre vetor busca com coluna j do tfidf (artigo j)
 
-        if(resposta->tamanho == 0){//   se lista de resposta estiver vazia
+        if(resposta->tamanho == 0){//  buscamos um result != 0 quando tamanho da lista resposta é 0, mais a frente é necessario que a lis. res. tamanho seja > 0
             if(result == 0){
                 continue;
             }
@@ -617,17 +626,19 @@ void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **ma
             continue;
         }
         
-        if(resposta->tail->valor <= result){
+        if(resposta->tail->valor <= result){// tail é o elemento com menor similaridade
             if(resposta->tamanho == N){
-                deletar_final_lista_res(resposta);
+                deletar_final_lista_res(resposta);// caso esteja cheia, deve deletar o elemento com menor similaridade.
             }
-            printf("val%lf, res%lf", resposta->tail->valor, result);
-            
-            adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j), N);    
+            //  funcao calcula onde deve ser adicionado o elemento, baseado no result (S), e os valores S da lista
+            //  elemento_indice_lista(titulo, j) retorna o titulo do j-esimo do artigo j, observe toda contagem começa a partir do 0
+            adicionar_lista_res_com_prioridade(resposta, result, elemento_indice_lista(titulo, j), N);
         }
 
     }
-    printf("\ntam resposta: %d\n\n", resposta->tamanho);
+    if(N != resposta->tamanho){
+        printf("...Apenas foi possível achar %d artigos relevantes:\n", resposta->tamanho);
+    }
     printa_lista_res(resposta);
     deletar_lista_res(resposta);
     free(vetor_busca);
@@ -770,21 +781,23 @@ void filtro_maiusculo_para_minusculo(char *palavra){
 }
 
 void adicionar_lista_res_com_prioridade(Lista_resposta *lista, double valor, char *palavra, int N){
-    if(lista->tamanho == 0){
+    if(lista->tamanho == 0){// caso N = 1 pode entrar nesse for, previne segmentation fault, previne problemas
         adicionar_inicio_lista_res(lista, valor, palavra);
         return;
     }
     Node_resposta *aux = lista->head;
     int i = 0;
     while(aux != NULL){
-        if(valor > aux->valor){
+        if(valor > (aux->valor)){// iterando entre todo elemento da lista, buscamos um em que valor (similaridade) seja > que o valor do node
+            //  digamos que logo na primeira iteração já verifica que valor > aux->valor (i = 0), então ao executar funcao abaixo o elemento é adicionado no comeco
+            //  se i = 1, elemento é adicionado entre o primeiro e segundo elemento da lista, garantindo a ordem decrescente de similaridade
             adicionar_meio_lista_res(lista, valor, palavra, i);
             return;
         }
         i++;
         aux = aux->proximo;
     }
-    if(lista->tamanho < N){
+    if(lista->tamanho < N){// só ira entrar aqui quando o valor da palavra(titulo) a ser adicionado é < que todos elementos
         adicionar_final_lista_res(lista, valor, palavra);
     }
 }
@@ -807,7 +820,7 @@ void deletar_final_lista_res(Lista_resposta *lista){
     lista->tamanho--;
 }
 
-//  recebe a palavra e verifica se há acentuação, se houver remove e retorna a palavra sem os acentos
+
 char* removerAcento(char* str) {
     char* com_acento[] = {
         "á", "à", "â", "ã", "ä", "é", "è", "ê", "ë", "í", "ì", "î", "ï",
