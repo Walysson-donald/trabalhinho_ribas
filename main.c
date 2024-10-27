@@ -137,8 +137,6 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
 //  calcula o vetor de busca que sera usado na query para encontrar a similaridade
 double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Lista *vocabulario);
 
-// int verifica_caso_usuario_queira_recalcular_TFIDF();                       //   talvez deletar essa funcao, nao util
-
 //  realiza a comparação entre o vetor de busca e o vocabulario em cada documento
 void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo);
 
@@ -156,9 +154,6 @@ Lista *leitura_arquivo_para_lista(FILE* arquivo);
 
 //  retorna uma lista com os titulos a serem retornados ao fim do calculo de similiaridade e comparações
 Lista *recolher_titulos_artigos_para_lista();
-
-// //  armazena a matriz em um arquivo binario
-// void matriz_binario(float **matrix, int linhas, int colunas);                       //  talvez deletar essa funcao, nao util
 
 //  retorna a qnt de palavras em uma str passada como parametro, *conta qnt de espaços na str + 1*
 int quantidade_palavra_em_string(char *str);
