@@ -31,11 +31,11 @@ typedef struct temp_name_node{
 }Node;
 
 
-typedef struct temp_name_node_float{
+typedef struct temp_name_node_double{
     double valor;
     char *palavra;
-    struct temp_name_node_float *proximo;
-    struct temp_name_node_float *anterior;
+    struct temp_name_node_double *proximo;
+    struct temp_name_node_double *anterior;
 }Node_resposta;
 
 
@@ -55,22 +55,22 @@ typedef struct{
 //  usado para armazenar o conteudo de cada texto(artigo) e seu tamanho
 typedef struct Texto{
     char *text;
-    int tamanho;
+    int qnt_palavras;
 }Texto;
 
 //  funçoes basicas da lista resposta
 
 Lista_resposta *criar_lista_res();
 
-Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavra, Node_resposta *proximo); 
+Node_resposta *criar_node_res(Node_resposta *anterior, double valor, char *palavra, Node_resposta *proximo); 
 
 //  note que se indice == 0, implica que palavra deve vir anterior do lista->head,
 //  se indice == 1, implica que palavra deve ir entre lista->head e o proximo.
-void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra, int indice);
+void adicionar_meio_lista_res(Lista_resposta *lista, double valor, char *palavra, int indice);
 
-void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavra);
+void adicionar_inicio_lista_res(Lista_resposta *lista, double valor, char *palavra);
 
-void adicionar_final_lista_res(Lista_resposta *lista, float valor, char *palavra);
+void adicionar_final_lista_res(Lista_resposta *lista, double valor, char *palavra);
 
 void deletar_final_lista_res(Lista_resposta *lista);
 
@@ -127,16 +127,16 @@ int quantidade_artigo_calculo();
 Texto *ler_artigo(FILE *artigo);
 
 //  funçoes para calculo do TFIDF
-float fc_TF(float frequencia,float tamanho);
+double fc_TF(double frequencia,double tamanho);
 
-float fc_IDF(float num_docs_palavra_aparece,float num_doc_total);
+double fc_IDF(double num_docs_palavra_aparece,double num_doc_total);
 
-double TFIDF_calculo(float fc_TF,float IDF);
+double TFIDF_calculo(double fc_TF,double IDF);
 
-void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario);
+void fc_matriz_TFIDF(double **TF, double *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario);
 
 //  calcula o vetor de busca que sera usado na query para encontrar a similaridade
-double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Lista *vocabulario);
+double* calculo_vetor_busca(char *query, double *IDF, int tamanho_vocabulario, Lista *vocabulario);
 
 //  realiza a comparação entre o vetor de busca e o vocabulario em cada documento
 void similaridade(int N, int quantidade_artigo, double *vetor_busca, double **matriz_TFIDF,int tamanho_vocabulario, Lista *titulo);
@@ -168,7 +168,7 @@ int main(void) {
     setlocale(LC_ALL, "Portuguese");
     //  declaracao das variaveis
     int quantidade_artigo = quantidade_artigo_calculo();
-    float **TF, *IDF;
+    double **TF, *IDF;
     FILE *vocabulario;
     char query[MAXIMO_TAMANHO_QUERY];
     double **matriz_TFIDF;
@@ -197,12 +197,12 @@ int main(void) {
 
     //   basicamente: cada linha corresponde a uma palavra do vocabulario e cada coluna corresponde a um artigo
     matriz_TFIDF = malloc(sizeof(double*) * tamanho_vocabulario);
-    TF = malloc(sizeof(float*) * tamanho_vocabulario);
-    IDF = malloc(sizeof(float) * quantidade_artigo); 
+    TF = malloc(sizeof(double*) * tamanho_vocabulario);
+    IDF = malloc(sizeof(double) * quantidade_artigo); 
     for(int i = 0; i < tamanho_vocabulario; i++)
     {
         matriz_TFIDF[i] = malloc(sizeof(double) * quantidade_artigo);
-        TF[i] = malloc(sizeof(float) * quantidade_artigo);
+        TF[i] = malloc(sizeof(double) * quantidade_artigo);
     }
 
     //  calcula a matriz TFIDF
@@ -433,7 +433,7 @@ Texto* ler_artigo(FILE *artigo) {
     Texto *texto = malloc(sizeof(Texto));
 
     texto->text = NULL;
-    texto-> tamanho = 0;
+    texto-> qnt_palavras = 0;
 
     char palavra[MAXIMO_TAMANHO_PALAVRA + 1];
     int tamanho_total = 0;
@@ -442,7 +442,7 @@ Texto* ler_artigo(FILE *artigo) {
         return NULL;
     }
     while((fscanf(artigo, " %s", palavra) != EOF)){
-        texto->tamanho++;// para saber a qnt de palavra de cada texto
+        texto->qnt_palavras++;// para saber a qnt de palavra de cada texto
 
         char *palavra_filtrada = removerAcento(palavra);
         if(palavra_filtrada == NULL)
@@ -452,7 +452,7 @@ Texto* ler_artigo(FILE *artigo) {
         tamanho_total += strlen(palavra_filtrada) + 1; 
         texto->text = realloc(texto->text, tamanho_total * sizeof(char));
 
-        if (texto->tamanho == 1) {
+        if (texto->qnt_palavras == 1) {
             strcpy(texto->text, palavra_filtrada);
         } else {
             strcat(texto->text, " ");   
@@ -480,15 +480,15 @@ void printa_lista(Lista *lista){
 
 
 //  funcoes para o calculo do TFIDF
-float fc_TF(float frequencia,float tamanho ){
-    return frequencia/tamanho;
+double fc_TF(double frequencia,double qnt_palavras ){
+    return frequencia/qnt_palavras;
 }
 
-float fc_IDF(float num_docs_palavra_aparece,float num_doc_total){
+double fc_IDF(double num_docs_palavra_aparece,double num_doc_total){
     return log10(num_doc_total/(num_docs_palavra_aparece+1));
 }
 
-double TFIDF_calculo(float TF,float IDF){
+double TFIDF_calculo(double TF,double IDF){
 
     return (TF*IDF);
 }
@@ -512,22 +512,7 @@ int quantidade_palavras(FILE *arquivo) {
     return qnt_palavras;//  retorna a quantidade de palavaras em cada arquivo
 }
 
-int verifica_caso_usuario_queira_recalcular_TFIDF(){
-    char escolha;
-    do{
-        printf("Primeira vez executando esse código ou deseja re-calcular TF-IDF? (s/n)\n");
-        scanf(" %c", &escolha);
-        escolha = 's';
-        if(escolha != 's' && escolha != 'n')
-            printf("sua escolha deve ser sim (s) ou não (n)!\n");
-    }while(escolha != 's' && escolha != 'n');
-    if(escolha == 's')
-        return 1;
-    return 0;
-}
-
-
-void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario){
+void fc_matriz_TFIDF(double **TF, double *IDF, int tamanho_vocabulario, int quantidade_artigo, double **matriz_TFIDF, Lista *vocabulario){
     FILE *art;
     Texto *T; // armazena temporariamente cada artigo e quantidade de vezes que aparece
     Node *nodeaux = vocabulario->head; //    variavel auxiliar para percorrer o vocabulario
@@ -543,7 +528,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
         lps_calculo(lps, nodeaux->palavra, M);
         for(int j = 1; j <= quantidade_artigo; j++){//  dado uma palavra do vocabulario, iteramos por todos os artigos e calculamos IDF e TF
             int frequencia;
-            float tf;
+            double tf;
 
             art = abrir_artigo(j);
             if(art == NULL)     
@@ -553,7 +538,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
                 break;
             
             frequencia = kmp_calculo_com_erros(lps, nodeaux->palavra, T -> text, M);//  quantas vezes a palavra aparece no texto
-            tf = fc_TF((float)frequencia,(float) T -> tamanho);// frequencia que aparece em relaçao as outras palavras
+            tf = fc_TF((double)frequencia,(double) T -> qnt_palavras);// frequencia que aparece em relaçao as outras palavras
 
             if (tf != 0){
                 qnt_artigos_aparece++;//    contagem de quantos artigos a palavra do vocabulario aparece
@@ -565,7 +550,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
             fclose(art);
         }
 
-        IDF[i] = fc_IDF((float)qnt_artigos_aparece, (float)quantidade_artigo);//    calcula IDF
+        IDF[i] = fc_IDF((double)qnt_artigos_aparece, (double)quantidade_artigo);//    calcula IDF
         i++;
         nodeaux = nodeaux->proximo;//   passa para o proximo termo do vocabulario
         
@@ -578,7 +563,7 @@ void fc_matriz_TFIDF(float **TF, float *IDF, int tamanho_vocabulario, int quanti
     }
 }   
 
-double* calculo_vetor_busca(char *query, float *IDF, int tamanho_vocabulario, Lista *vocabulario){
+double* calculo_vetor_busca(char *query, double *IDF, int tamanho_vocabulario, Lista *vocabulario){
     double *vetor_busca;
     char *palavra_query;
     int quantidade_palavras;
@@ -681,7 +666,7 @@ Lista_resposta *criar_lista_res(){
     return lista;
 }
 
-Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavra, Node_resposta *proximo){
+Node_resposta *criar_node_res(Node_resposta *anterior, double valor, char *palavra, Node_resposta *proximo){
     Node_resposta *newnode = malloc(sizeof(Node_resposta));
     newnode->anterior = anterior;
     newnode->proximo = proximo;
@@ -692,7 +677,7 @@ Node_resposta *criar_node_res(Node_resposta *anterior, float valor, char *palavr
     return newnode;
 }
 
-void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavra){
+void adicionar_inicio_lista_res(Lista_resposta *lista, double valor, char *palavra){
     Node_resposta *newnode = criar_node_res(NULL,valor, palavra, NULL);
         if (lista -> tail == NULL){
             lista -> head = newnode;
@@ -706,7 +691,7 @@ void adicionar_inicio_lista_res(Lista_resposta *lista, float valor, char *palavr
     lista -> tamanho++;
 }
 
-void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra, int indice){
+void adicionar_meio_lista_res(Lista_resposta *lista, double valor, char *palavra, int indice){
     if(indice >= lista->tamanho){
         adicionar_inicio_lista_res(lista, valor, palavra);
         return;
@@ -728,7 +713,7 @@ void adicionar_meio_lista_res(Lista_resposta *lista, float valor, char *palavra,
 
 
 
-void adicionar_final_lista_res(Lista_resposta *lista, float valor, char *palavra){
+void adicionar_final_lista_res(Lista_resposta *lista, double valor, char *palavra){
     Node_resposta *newnode = criar_node_res(NULL,valor, palavra, NULL);
     if (lista -> tail == NULL){
         lista -> head = newnode;
