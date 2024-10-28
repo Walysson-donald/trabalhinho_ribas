@@ -735,7 +735,7 @@ void adicionar_final_lista_res(Lista_resposta *lista, float valor, char *palavra
     else{
         lista->tail->proximo = newnode;
         newnode -> anterior = lista -> tail;
-        lista -> tail = newnode;
+        lista->tail = newnode;
     }
     lista->tamanho++;
 }
