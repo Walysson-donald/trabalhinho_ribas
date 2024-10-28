@@ -1,9 +1,10 @@
 /*
-    Pesquisa por TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos), realizado por uma query.
+    Usando TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos) e vocabulario.
+    Uma query, input do usuario, é pesquisada atravez dos artigos.
     Codado usando VSCode, github. Feito por:
     Raphael José Pimenta Martins
     Walysson Cietto Biçoli de Carvalho
-    Trabalho 1 curso ATP II, prof Lucas Ribas
+    Trabalho 1 curso ATP II, prof Lucas Ribas.
 
 
     nosso trabalho ta tipo:
@@ -175,7 +176,8 @@ int main(void) {
     Lista *vocabulario_palavras, *titulos_artigos;
 
     
-    printf("\n\nPesquisa por TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos), realizado por uma query.\n");
+    printf("\n\nUsando TFIDF, com KMP que aceita até um erro, em uma base de arquivo(artigos) e vocabulario.\n");
+    printf("\nUma query, input do usuario, é pesquisada atravez dos artigos.");
     printf("Codado usando VSCode, github. Feito por:\n");
     printf("Raphael José Pimenta Martins\n");
     printf("Walysson Cietto Biçoli de Carvalho\n");
